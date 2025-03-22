@@ -2,24 +2,31 @@ const std = @import("std");
 const OptimizeMode = std.builtin.OptimizeMode;
 const ResolvedTarget = std.Build.ResolvedTarget;
 
-const src_files = .{"src/mymath.cpp"};
+const CXX_FLAGS = .{
+    "-std=c++23",
+    "-pedantic",
+    "-Werror",
+    "-Wall",
+    "-Wextra",
+};
 
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    build_exe(b, target, optimize);
+    build_repl(b, target, optimize);
+    build_daemon(b, target, optimize);
     build_tests(b, target, optimize);
-    build_docs(b, target, optimize);
+    // build_docs(b, target, optimize);
 }
 
-fn build_exe(
+fn build_repl(
     b: *std.Build,
     target: ResolvedTarget,
     optimize: OptimizeMode,
 ) void {
     const exe = b.addExecutable(.{
-        .name = "yokai",
+        .name = "yokai-repl",
         .target = target,
         .optimize = optimize,
         .use_llvm = false,
@@ -27,16 +34,13 @@ fn build_exe(
 
     exe.linkLibCpp();
 
+    const repl_files = .{
+        "main.cpp",
+    };
     exe.addCSourceFiles(.{
-        .root = b.path("."),
-        .files = &(.{"src/main.cpp"} ++ src_files),
-        .flags = &.{
-            "-std=c++23",
-            "-pedantic",
-            "-Werror",
-            "-Wall",
-            "-Wextra",
-        },
+        .root = b.path("repl"),
+        .files = &(repl_files),
+        .flags = &CXX_FLAGS,
     });
 
     b.installArtifact(exe);
@@ -47,7 +51,42 @@ fn build_exe(
         run_cmd.addArgs(args);
     }
 
-    const run_step = b.step("run", "Run the app");
+    const run_step = b.step("run-repl", "Run the repl");
+    run_step.dependOn(&run_cmd.step);
+}
+
+fn build_daemon(
+    b: *std.Build,
+    target: ResolvedTarget,
+    optimize: OptimizeMode,
+) void {
+    const exe = b.addExecutable(.{
+        .name = "yokai-daemon",
+        .target = target,
+        .optimize = optimize,
+        .use_llvm = false,
+    });
+
+    exe.linkLibCpp();
+
+    const daemon_files = .{
+        "main.cpp",
+    };
+    exe.addCSourceFiles(.{
+        .root = b.path("daemon"),
+        .files = &daemon_files,
+        .flags = &CXX_FLAGS,
+    });
+
+    b.installArtifact(exe);
+
+    const run_cmd = b.addRunArtifact(exe);
+    run_cmd.step.dependOn(b.getInstallStep());
+    if (b.args) |args| {
+        run_cmd.addArgs(args);
+    }
+
+    const run_step = b.step("run-daemon", "Run the daemon");
     run_step.dependOn(&run_cmd.step);
 }
 
@@ -57,7 +96,7 @@ fn build_tests(
     optimize: OptimizeMode,
 ) void {
     const unit_tests = b.addExecutable(.{
-        .name = "unit_tests",
+        .name = "tests",
         .target = target,
         .optimize = optimize,
         .use_llvm = false,
@@ -65,17 +104,15 @@ fn build_tests(
 
     unit_tests.linkLibCpp();
 
-    const test_files = .{ "tests/main.cpp", "tests/mydiv_test.cpp" };
+    const test_files = .{
+        "main.cpp",
+        "mydiv_test.cpp",
+        "../daemon/mymath.cpp",
+    };
     unit_tests.addCSourceFiles(.{
-        .root = b.path("."),
-        .files = &(src_files ++ test_files),
-        .flags = &.{
-            "-std=c++23",
-            "-pedantic",
-            "-Werror",
-            "-Wall",
-            "-Wextra",
-        },
+        .root = b.path("tests"),
+        .files = &test_files,
+        .flags = &CXX_FLAGS,
     });
 
     b.installArtifact(unit_tests);
@@ -95,35 +132,8 @@ fn build_docs(
     target: ResolvedTarget,
     optimize: OptimizeMode,
 ) void {
-    const exe = b.addExecutable(.{
-        .name = "yokai",
-        .target = target,
-        .optimize = optimize,
-        .use_llvm = false,
-    });
-
-    exe.linkLibCpp();
-
-    exe.addCSourceFiles(.{
-        .root = b.path("."),
-        .files = &(.{"src/main.cpp"} ++ src_files),
-        .flags = &.{
-            "-std=c++23",
-            "-pedantic",
-            "-Werror",
-            "-Wall",
-            "-Wextra",
-        },
-    });
-
-    b.installArtifact(exe);
-
-    const run_cmd = b.addRunArtifact(exe);
-    run_cmd.step.dependOn(b.getInstallStep());
-    if (b.args) |args| {
-        run_cmd.addArgs(args);
-    }
-
-    const run_step = b.step("run", "Run the app");
-    run_step.dependOn(&run_cmd.step);
+    _ = b;
+    _ = target;
+    _ = optimize;
+    // https://ziglang.org/learn/build-system/#system-tools
 }

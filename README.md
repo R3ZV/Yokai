@@ -14,3 +14,46 @@ You should have installed on you machine the following:
 
 When you are ready to commit make sure you use [conventional commit](https://www.conventionalcommits.org/en/v1.0.0/)
 specification.
+
+## Project structure
+
+### build.zig:
+
+Provides commands to build certain aspects of the project:
+```bash
+# It will build everything, daemon, repl, tests, docs, etc.
+zig build
+
+# Build and run the repl
+zig build run-repl
+
+# Build and run the daemon
+zig build run-daemon
+
+# Build and run the tests
+zig build test
+```
+
+If you add a new `.cpp` file to the project make sure you add it to the
+coresponding build step in `build.zig`.
+
+For example, if during the development you added a `daemon/include/math.h` and
+`daemon/math.cpp`, you will go to `build.zig > fn build_daemon(...)` and add
+`math.cpp` to `daemon_files`.
+
+### common
+
+**common** is a directory which provides `.h` and `.cpp` that implement
+shared behaviour for both `REPL` and `DAEMON`.
+
+### daemon
+**daemon** is a directory which contains the implementation for the `DAEMON`.
+
+### repl
+**repl** is a directory which contains the implementation for the `REPL`.
+
+### tests
+**tests** is a directory which contains all the project's tests.
+
+### lib
+**lib** is a directory which includes all library dependencies we need.

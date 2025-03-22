@@ -17,6 +17,7 @@ pub fn build(b: *std.Build) void {
     build_repl(b, target, optimize);
     build_daemon(b, target, optimize);
     build_tests(b, target, optimize);
+    // format_code();
     // build_docs(b, target, optimize);
 }
 
@@ -106,8 +107,6 @@ fn build_tests(
 
     const test_files = .{
         "main.cpp",
-        "mydiv_test.cpp",
-        "../daemon/mymath.cpp",
     };
     unit_tests.addCSourceFiles(.{
         .root = b.path("tests"),
@@ -136,4 +135,14 @@ fn build_docs(
     _ = target;
     _ = optimize;
     // https://ziglang.org/learn/build-system/#system-tools
+}
+
+fn format_code(
+    b: *std.Build,
+    target: ResolvedTarget,
+    optimize: OptimizeMode,
+) void {
+    _ = b;
+    _ = target;
+    _ = optimize;
 }

@@ -5,10 +5,11 @@
 
 void handle_client(int client) {
     constexpr int BUFF_SIZE = 1024;
-    char buff[BUFF_SIZE] = {0};
+    char buff[BUFF_SIZE];
     while (true) {
-        memset(&buff, 0, BUFF_SIZE);
-        ssize_t bytes_read = read(client, &buff, BUFF_SIZE - 1);
+        memset(buff, 0, BUFF_SIZE);
+        ssize_t bytes_read = read(client, buff, BUFF_SIZE);
+	std::println("[DBG]: Number of bytes read = {}", bytes_read);
         if (bytes_read <= 0) {
             if (bytes_read == 0) {
                 std::println("[INFO]: Client '{}' disconnected!", client);

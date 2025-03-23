@@ -62,7 +62,12 @@ auto Connection::accept_conn() -> std::expected<int32_t, std::error_code> {
 }
 
 auto Connection::send_msg(std::string msg) -> std::optional<std::error_code> {
-    if (send(socket_fd, &msg, msg.size(), 0) == -1) {
+    constexpr int BUFF_SIZE = 1024;
+    char buff[BUFF_SIZE];
+    strcpy(buff, msg.c_str());
+    
+    int res = send(socket_fd, buff, msg.size() + 1, 0);
+    if (res == -1) {
         return std::make_optional(std::error_code(errno, std::generic_category()));
     }
     return std::nullopt;

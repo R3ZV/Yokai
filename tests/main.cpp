@@ -1,4 +1,4 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "../lib/doctest.h"
 
-TEST_CASE("main") { }
+TEST_CASE("main") {}

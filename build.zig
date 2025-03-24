@@ -17,7 +17,7 @@ pub fn build(b: *std.Build) void {
     build_repl(b, target, optimize);
     build_daemon(b, target, optimize);
     build_tests(b, target, optimize);
-    // format_code();
+    format_code(b);
     // build_docs(b, target, optimize);
 }
 
@@ -141,10 +141,21 @@ fn build_docs(
 
 fn format_code(
     b: *std.Build,
-    target: ResolvedTarget,
-    optimize: OptimizeMode,
 ) void {
-    _ = b;
-    _ = target;
-    _ = optimize;
+    const args = .{
+        "-i",
+        "daemon/main.cpp",
+
+        "repl/main.cpp",
+
+        "common/connection.cpp",
+        "common/include/connection.h",
+
+        "tests/main.cpp",
+    };
+    const tool_run = b.addSystemCommand(&.{"clang-format"});
+    tool_run.addArgs(&(args));
+
+    const format_step = b.step("format", "Run code formatting");
+    format_step.dependOn(&tool_run.step);
 }

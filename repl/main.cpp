@@ -17,7 +17,8 @@ int main() {
     bool running = true;
     while (running) {
         if (failed_commands == ALLOWED_FAILS) {
-            std::cerr << "[ERROR]: Connection to the server is unreliable!" << std::endl;
+            std::cerr << "[ERROR]: Connection to the server is unreliable!"
+                      << std::endl;
             std::cerr << "Terminating session..." << std::endl;
             running = false;
             return 1;
@@ -26,7 +27,7 @@ int main() {
         std::string command;
         std::print("> ");
         std::getline(std::cin, command);
-        std::cerr << "[DBG]: Command send = '"  << command << "'" << std::endl;
+        std::cerr << "[DBG]: Command send = '" << command << "'" << std::endl;
 
         auto res = conn.send_msg(command);
         if (res != std::nullopt) {

@@ -1,5 +1,5 @@
-#include <thread>
 #include <print>
+#include <thread>
 
 #include "../common/include/connection.h"
 
@@ -14,7 +14,9 @@ void handle_client(int client) {
             if (bytes_read == 0) {
                 std::println("[INFO]: Client '{}' disconnected!", client);
             } else {
-                std::cerr << "[ERROR]: Read failed or connection closed by client" << std::endl;
+                std::cerr
+                    << "[ERROR]: Read failed or connection closed by client"
+                    << std::endl;
             }
             break;
         }
@@ -45,7 +47,6 @@ int main() {
 
         std::thread client_thread(handle_client, client_fd.value());
         client_thread.detach();
-
     }
     return 0;
 }

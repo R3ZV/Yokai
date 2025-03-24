@@ -1,20 +1,21 @@
 #pragma once
 
 #include <arpa/inet.h>
-#include <iostream>
 #include <netinet/in.h>
-#include <unistd.h>
-#include <sys/socket.h>
 #include <stdint.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
 #include <cerrno>
 #include <expected>
+#include <iostream>
 
 class Connection {
     int32_t socket_fd;
     struct sockaddr_in address;
     const int32_t PORT;
 
-public:
+   public:
     Connection(int32_t port);
     ~Connection();
 

@@ -3,8 +3,9 @@
 #include<map>
 #include<string>
 class Database{
-    std::map<std::string, Object> data;
+    std::map<std::string, Object> content;
 public:
     void insert(std::string key, Object value);
-    Object select(std::string key);
+    Object get(std::string key);
+    void remove(std::string key); 
 };

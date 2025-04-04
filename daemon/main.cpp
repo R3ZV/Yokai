@@ -1,13 +1,25 @@
 #include <print>
 #include <thread>
-
+#include<atomic>
+#include<chrono>
+#include<poll.h>
 #include "../common/include/connection.h"
 
 void handle_client(int client) {
     constexpr int BUFF_SIZE = 1024;
+    constexpr int TIMEOUT_SECONDS=10;
     char buff[BUFF_SIZE];
+    pollfd pfd; //we'll need this to use poll(), see linux manual
+    pfd.fd=client;
+    pfd.events=POLLIN;
     while (true) {
         memset(buff, 0, BUFF_SIZE);
+        //here's the magic: poll() allows us to check if a fd is ready for writing in it
+        int ready=poll(&pfd, 1, TIMEOUT_SECONDS*1000);
+        if(ready==0){
+            std::println("[WARNING]: Your time has run out, you'll be disconnected");
+            break;
+        }
         ssize_t bytes_read = read(client, buff, BUFF_SIZE);
 	std::println("[DBG]: Number of bytes read = {}", bytes_read);
         if (bytes_read <= 0) {
@@ -22,7 +34,7 @@ void handle_client(int client) {
         }
         std::println("Message from client: {}", buff);
     }
-
+    
     close(client);
 }
 

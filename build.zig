@@ -74,6 +74,8 @@ fn build_daemon(
     const daemon_files = .{
         "main.cpp",
         "../common/connection.cpp",
+        "../common/object.cpp",
+        "../common/database.cpp",
     };
     exe.addCSourceFiles(.{
         .root = b.path("daemon"),

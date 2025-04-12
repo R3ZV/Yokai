@@ -2,6 +2,7 @@
 #include<string>
 #include<optional>
 #include "include/object.h"
+
 Object::Object(int integer_data): data(integer_data) {}
 
 Object::Object(const std::string &string_data): data(string_data){}

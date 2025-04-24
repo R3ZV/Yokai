@@ -76,6 +76,7 @@ fn build_daemon(
         "../common/connection.cpp",
         "../common/object.cpp",
         "../common/database.cpp",
+        "../common/transaction.cpp",
     };
     exe.addCSourceFiles(.{
         .root = b.path("daemon"),

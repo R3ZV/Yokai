@@ -6,6 +6,7 @@
 
 #include "../common/include/connection.h"
 #include "../common/include/database.h"
+#include "../common/include/transaction.h"
 #include <string.h>
 
 // create global database
@@ -14,10 +15,12 @@ Database* global_dict = new Database();
 void handle_client(int client) {
     constexpr int BUFF_SIZE = 1024;
     char buff[BUFF_SIZE];
+    Transaction* user_transaction = new Transaction(global_dict);
+
     while (true) {
         memset(buff, 0, BUFF_SIZE);
         ssize_t bytes_read = read(client, buff, BUFF_SIZE);
-	std::println("\n[DBG]: Number of bytes read = {}", bytes_read);
+	    std::println("\n[DBG]: Number of bytes read = {}", bytes_read);
         if (bytes_read <= 0) {
             if (bytes_read == 0) {
                 std::println("[INFO]: Client '{}' disconnected!", client);
@@ -29,45 +32,8 @@ void handle_client(int client) {
             break;
         }
         std::println("Message from client: {}", buff);
-
-        // check if the message is SET smth or DELETE smth
-        // also SHOW to show entire database
-        std::vector<std::string> tokens;
-        char* token = strtok(buff, " ");
-
-        while (token != nullptr) {
-            // Add token to vector
-            tokens.push_back(token);
-    
-            // Get the next token
-            token = strtok(nullptr, " ");
-        }
         
-        std::println("[BDG]: Tokens: ");
-        for (const auto& t : tokens) {
-            std::println("{}", t);
-        }
-        
-        // SET
-        if (tokens.size() == 3 && tokens[0] == "SET") {            
-            std::println("[DBG]: Setting key {} to value {}", tokens[1], tokens[2]);  
-            global_dict->insert_key(tokens[1], Object(tokens[2]));        
-        }
-        // DELETE
-        else if (tokens.size() == 2 && tokens[0] == "DEL") {
-            std::println("[DBG]: Deleting key {}", tokens[1]);
-            auto res = global_dict->delete_key(tokens[1]);
-            if(res != std::nullopt) {
-                std::cerr << res.value().message() << std::endl;
-            }
-        }
-        // SHOW DATA
-        else if (tokens.size() == 1 && tokens[0] == "SHOW") {
-            global_dict->show_objects();
-        }
-        else {
-            std::println("Not a recognised command");
-        }
+        user_transaction->add_command(buff);
     }
 
     close(client);

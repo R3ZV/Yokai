@@ -9,7 +9,8 @@
 class Database{
     std::map<std::string, Object> data;
 public:
-    void insert(std::string key, const Object& value);
+    std::optional<std::error_code> insert_key(const std::string& key, const Object& value);
+    std::optional<std::error_code> delete_key(const std::string& key);
     std::expected<Object, std::error_code> select(std::string key);
     void show_objects();
 };

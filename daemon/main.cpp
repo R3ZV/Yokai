@@ -50,11 +50,16 @@ void handle_client(int client) {
         
         // SET
         if (tokens.size() == 3 && tokens[0] == "SET") {            
-            std::println("[DBG]: Setting key {} to value {}", tokens[1], tokens[2]);            
+            std::println("[DBG]: Setting key {} to value {}", tokens[1], tokens[2]);  
+            global_dict->insert_key(tokens[1], Object(tokens[2]));        
         }
         // DELETE
         else if (tokens.size() == 2 && tokens[0] == "DEL") {
             std::println("[DBG]: Deleting key {}", tokens[1]);
+            auto res = global_dict->delete_key(tokens[1]);
+            if(res != std::nullopt) {
+                std::cerr << res.value().message() << std::endl;
+            }
         }
         // SHOW DATA
         else if (tokens.size() == 1 && tokens[0] == "SHOW") {

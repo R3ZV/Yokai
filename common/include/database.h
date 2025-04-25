@@ -13,4 +13,7 @@ public:
     std::optional<std::error_code> delete_key(const std::string& key);
     std::expected<Object, std::error_code> select(const std::string& key);
     void show_objects();
+    std::optional<std::error_code> update(const Database& other);
+    void clear();
+    bool exists(const std::string& key);
 };

@@ -3,9 +3,9 @@
 #include<optional>
 #include "include/object.h"
 
-Object::Object(int integer_data): data(integer_data) {}
+Object::Object(int integer_data, time_t timestamp): data(integer_data), timestamp(timestamp) {}
 
-Object::Object(const std::string &string_data): data(string_data){}
+Object::Object(const std::string &string_data, time_t timestamp): data(string_data), timestamp(timestamp) {}
 
 std::optional<int> Object::asInt() const{
      if(auto ptr=std::get_if<int>(&data)){
@@ -13,9 +13,14 @@ std::optional<int> Object::asInt() const{
      }
      return std::nullopt;
 }
+
 std::optional<std::string> Object::asString() const{
      if(auto ptr=std::get_if<std::string>(&data)){
         return *ptr;
      }
      return std::nullopt;
+}
+
+time_t Object::get_timestamp() const{
+   return timestamp;
 }

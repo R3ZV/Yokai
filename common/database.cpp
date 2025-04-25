@@ -45,6 +45,31 @@ void Database::show_objects() {
     }
     std::println("\nShowing data:");
     for (const auto& it : this->data) {
-        std::println("{}", it.first);
+        auto aux = it.second.asString();
+        if (aux.has_value()) {
+            auto printable_value = aux.value();
+            println("Key: {}, Value: {}, Timestamp: {}", it.first, printable_value, it.second.get_timestamp());
+        } 
     }
+}
+
+std::optional<std::error_code> Database::update(const Database& other) {
+    try {
+        for (const auto& it : other.data) {
+            this->data[it.first] = it.second;
+        }
+    }
+    catch (...) {
+        return std::make_optional(
+            std::error_code(errno, std::generic_category()));
+    }    
+    return std::nullopt;    
+}
+
+void Database::clear() {
+    this->data.clear();
+}
+
+bool Database::exists(const std::string& key) {
+    return (this->data.find(key) != this->data.end());
 }

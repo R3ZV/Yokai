@@ -7,10 +7,11 @@
 #include "../common/include/connection.h"
 #include "../common/include/database.h"
 #include "../common/include/transaction.h"
+#include "../common/include/list_database.h"
 #include <string.h>
 
 // create global database
-Database* global_dict = new Database();
+ListDatabase* global_dict = new ListDatabase();
 
 void handle_client(int client) {
     constexpr int BUFF_SIZE = 1024;

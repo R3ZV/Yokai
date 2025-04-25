@@ -3,11 +3,11 @@
 #include <print>
 #include <iostream>
 
-Transaction::Transaction(Database* global_store) : global_store(global_store), local_store(new Database()), 
+Transaction::Transaction(ListDatabase* global_store) : global_store(global_store), local_store(new Database()), 
         write_buffer(new Database()), timestamp(time(nullptr)) {}
 
 void Transaction::handle_command(char* buff) {
-        // check if the message is SET smth or DELETE smth
+        // check if the message is SET ... or DELETE ...
         // SELECT prints the value of the key
         // also SHOW to show entire database
         // also MULTI and EXEC for beggining and ending transactions
@@ -48,7 +48,8 @@ void Transaction::handle_command(char* buff) {
         // DELETE
         else if (tokens.size() == 2 && tokens[0] == "DEL") {
             // Look for the key in global store
-            if (this->global_store->exists(tokens[1])) {
+            // We look for an object that is visible from inside the current transaction (not a later one)
+            if (this->global_store->select_latest(tokens[1], this->timestamp).has_value()) {
                 // Mark the key as deleted
                 auto err = this->write_buffer->insert_key(tokens[1], Object("DELETED", this->timestamp));
                 if (err != std::nullopt) {
@@ -73,12 +74,13 @@ void Transaction::handle_command(char* buff) {
 
             if (!res.has_value()) {
                 // Then look in the global store
-                res = this->global_store->select(tokens[1]);
+                res = this->global_store->select_latest(tokens[1], this->timestamp);
                 if (!res.has_value()) {
                     std::cerr << res.error().message() << std::endl;
                     return;
                 }
                 // Add a copy of the object to local store (shouldnt really be a copy, whatever)
+                std::println("Debug");
                 const auto& value = res.value();
                 this->local_store->insert_key(tokens[1], value);
             }

@@ -53,23 +53,14 @@ void Database::show_objects() {
     }
 }
 
-std::optional<std::error_code> Database::update(const Database& other) {
-    try {
-        for (const auto& it : other.data) {
-            this->data[it.first] = it.second;
-        }
-    }
-    catch (...) {
-        return std::make_optional(
-            std::error_code(errno, std::generic_category()));
-    }    
-    return std::nullopt;    
-}
-
 void Database::clear() {
     this->data.clear();
 }
 
-bool Database::exists(const std::string& key) {
+bool Database::exists(const std::string& key) const {
     return (this->data.find(key) != this->data.end());
+}
+
+const std::map<std::string, Object>& Database::get_data() const {
+    return this->data;
 }

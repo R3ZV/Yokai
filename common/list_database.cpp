@@ -37,7 +37,17 @@ void ListDatabase::show_objects() {
 }
 
 std::optional<std::error_code> ListDatabase::update(const Database& other) {
-    try {    
+    std::unique_lock<std::mutex> lock(this->commit_lock);    
+    try {
+        // First check there are no collissions with other transaction commits
+        for (const auto& it : other.get_data()) {
+            const auto& [key, value] = it;
+            if (this->exists(key) && this->data[key].back().get_timestamp() > value.get_timestamp()) {
+                std::println("Aborting transaction!");
+                return std::nullopt;
+            }
+        }            
+        // Update global dict with new values
         for (const auto& it : other.get_data()) {
             this->data[it.first].push_back(it.second);
         }

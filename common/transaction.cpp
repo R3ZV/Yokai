@@ -5,10 +5,11 @@
 
 Transaction::Transaction(Database* global_store) : global_store(global_store) {}
 
-void Transaction::add_command(char* buff) {
+void Transaction::handle_command(char* buff) {
         // check if the message is SET smth or DELETE smth
+        // SELECT prints the value of the key
         // also SHOW to show entire database
-        // also MULTI and EXEC for multi command transactions
+        // also MULTI and EXEC for beggining and ending transactions
         std::vector<std::string> tokens;
         char* token = strtok(buff, " ");
 
@@ -25,7 +26,10 @@ void Transaction::add_command(char* buff) {
             std::println("{}", t);
         }
 
-        this->commands.push_back(tokens);
+        // add command to command list if transaction contains multiple commands
+        if (this->ongoing) {
+            this->commands.push_back(tokens);
+        }        
         
         // SET
         if (tokens.size() == 3 && tokens[0] == "SET") {            
@@ -40,12 +44,32 @@ void Transaction::add_command(char* buff) {
                 std::cerr << res.value().message() << std::endl;
             }
         }
+        // SELECT (for now just prints the key value pair)
+        else if (tokens.size() == 2 && tokens[0] == "SELECT") {
+            auto res = this->global_store->select(tokens[1]);
+            if (!res.has_value()) {
+                std::cerr << res.error().message() << std::endl;
+                return;
+            }
+            const auto& value = res.value();
+            auto aux = value.asString();
+            if (aux.has_value()) {
+                auto printable_value = aux.value();
+                println("Key: {}, Value: {}", tokens[1], printable_value);
+            }            
+        }
         // SHOW DATA
         else if (tokens.size() == 1 && tokens[0] == "SHOW") {
             this->global_store->show_objects();
         }
         // MULTI
         else if (tokens.size() == 1 && tokens[0] == "MULTI") {
+            this->ongoing = true;
+        }
+        // EXEC
+        else if (tokens.size() == 1 && tokens[0] == "EXEC") {
+            this->ongoing = false;
+            this->commit();
         }
         else {
             std::println("Not a recognised command");
@@ -53,5 +77,12 @@ void Transaction::add_command(char* buff) {
 }
 
 void Transaction::commit() {
-
+    for (auto command : commands) {
+        std::print("Command: ");
+        for (auto token : command) {
+            std::print("{} ", token);
+        }
+        std::println();
+    }
+    commands.clear();
 }

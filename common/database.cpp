@@ -27,11 +27,11 @@ std::optional<std::error_code> Database::delete_key(const std::string& key) {
     }
 }
 
-std::expected<Object, std::error_code> Database::select(std::string key) {
+std::expected<Object, std::error_code> Database::select(const std::string& key) {
     // Check if the key exists in the map
-    auto it = data.find(key);
+    const auto& it = data.find(key);
     if (it != data.end()) {
-        return it->second;
+        return std::expected<Object, std::error_code>(it->second);
     } else {
         // Return an error message if the key is not found
         return std::unexpected(std::error_code(errno, std::generic_category()));

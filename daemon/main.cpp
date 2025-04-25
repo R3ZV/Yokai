@@ -33,7 +33,7 @@ void handle_client(int client) {
         }
         std::println("Message from client: {}", buff);
         
-        user_transaction->add_command(buff);
+        user_transaction->handle_command(buff);
     }
 
     close(client);

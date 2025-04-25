@@ -7,9 +7,10 @@ class Transaction {
         Database* global_store;
         //Database* local_store;
         std::vector<std::vector<std::string>> commands;
+        bool ongoing = false;
 
     public:
         Transaction(Database* global_store);
-        void add_command(char* buff);
+        void handle_command(char* buff);
         void commit();
 };

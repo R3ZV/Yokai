@@ -18,4 +18,5 @@ class Object{
     std::optional<int> asInt() const;
     std::optional<std::string> asString() const;
     time_t get_timestamp() const;
+    void set_timestamp(time_t timestamp);
 };

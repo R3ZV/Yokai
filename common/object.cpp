@@ -24,3 +24,7 @@ std::optional<std::string> Object::asString() const{
 time_t Object::get_timestamp() const{
    return timestamp;
 }
+
+void Object::set_timestamp(time_t timestamp) {
+   this->timestamp = timestamp;
+}

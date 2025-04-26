@@ -1,7 +1,8 @@
 #include "include/list_database.h"
 #include <print>
 
-std::expected<Object, std::error_code> ListDatabase::select_latest(const std::string& key, time_t transaction_timestamp) {
+auto ListDatabase::select_latest(const std::string& key, time_t transaction_timestamp) 
+    -> std::expected<std::shared_ptr<Object>, std::error_code> {
     // Check if the key exists in the map
     const auto& it = data.find(key);
     if (it != data.end()) {
@@ -9,8 +10,8 @@ std::expected<Object, std::error_code> ListDatabase::select_latest(const std::st
         // to avoid phantom reads
         const auto& object_list = it->second;
         for (auto object = object_list.rbegin(); object != object_list.rend(); object++) {
-            if (object->get_timestamp() < transaction_timestamp) {
-                return std::expected<Object, std::error_code>(*object);
+            if (object->get()->get_timestamp() < transaction_timestamp) {
+                return std::expected<std::shared_ptr<Object>, std::error_code>(*object);
             }
         }        
     }
@@ -26,29 +27,34 @@ void ListDatabase::show_objects() {
     std::println("\nShowing data:");
     for (const auto& it : this->data) {
         println("Key: {}", it.first);
-        for (auto value : it.second) {
-            auto aux = value.asString();
+        for (const auto& value : it.second) {
+            auto aux = value.get()->asString();
             if (aux.has_value()) {
                 auto printable_value = aux.value();
-                println("{} - {}", printable_value, value.get_timestamp());
+                println("{} - {}", printable_value, value.get()->get_timestamp());
             }
         }         
     }
 }
 
-std::optional<std::error_code> ListDatabase::update(const Database& other) {
+auto ListDatabase::update(Database& write_buffer, time_t commit_timestamp) -> std::optional<std::error_code> {
     std::unique_lock<std::mutex> lock(this->commit_lock);    
     try {
         // First check there are no collissions with other transaction commits
-        for (const auto& it : other.get_data()) {
+        for (const auto& it : write_buffer.get_data()) {
             const auto& [key, value] = it;
-            if (this->exists(key) && this->data[key].back().get_timestamp() > value.get_timestamp()) {
+            // We check if there have been any commits for any key since our transaction started
+            if (this->exists(key) && this->data[key].back().get()->get_timestamp() > value.get()->get_timestamp()) {
                 std::println("Aborting transaction!");
                 return std::nullopt;
             }
-        }            
+        }           
+        
+        // Update the timestamps of the objects inside of the write buffer to the commit timestamp
+        write_buffer.update_timestamps(commit_timestamp);
+
         // Update global dict with new values
-        for (const auto& it : other.get_data()) {
+        for (const auto& it : write_buffer.get_data()) {
             this->data[it.first].push_back(it.second);
         }
     }

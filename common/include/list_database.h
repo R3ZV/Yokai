@@ -11,11 +11,12 @@
 
 class ListDatabase {
     private:
-        std::map<std::string, std::deque<Object>> data;
+        std::map<std::string, std::deque<std::shared_ptr<Object>>> data;
         std::mutex commit_lock;
     public:
-        std::expected<Object, std::error_code> select_latest(const std::string& key, time_t transaction_timestamp);
+        auto select_latest(const std::string& key, time_t transaction_timestamp) 
+            -> std::expected<std::shared_ptr<Object>, std::error_code>;
         void show_objects();
-        std::optional<std::error_code> update(const Database& other);
+        auto update(Database& other, time_t commit_timestamp) -> std::optional<std::error_code>;
         bool exists(const std::string& key);
 };

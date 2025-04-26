@@ -1,14 +1,15 @@
 #pragma GCC diagnostic ignored "-Wunused-variable"
 
+#include <string.h>
+
 #include <print>
 #include <thread>
 #include <vector>
 
 #include "../common/include/connection.h"
 #include "../common/include/database.h"
-#include "../common/include/transaction.h"
 #include "../common/include/list_database.h"
-#include <string.h>
+#include "../common/include/transaction.h"
 
 // create global database
 ListDatabase* global_dict = new ListDatabase();
@@ -21,7 +22,7 @@ void handle_client(int client) {
     while (true) {
         memset(buff, 0, BUFF_SIZE);
         ssize_t bytes_read = read(client, buff, BUFF_SIZE);
-	      std::println("\n[DBG]: Number of bytes read = {}", bytes_read);
+        std::println("\n[DBG]: Number of bytes read = {}", bytes_read);
         if (bytes_read <= 0) {
             if (bytes_read == 0) {
                 std::println("[INFO]: Client '{}' disconnected!", client);
@@ -33,7 +34,7 @@ void handle_client(int client) {
             break;
         }
         std::println("Message from client: {}", buff);
-        
+
         user_transaction->handle_command(buff);
     }
 

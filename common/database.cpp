@@ -1,20 +1,22 @@
 #include "include/database.h"
-#include <map>
-#include <string>
-#include <print>
 
-auto Database::insert_key(const std::string& key, std::shared_ptr<Object> value) -> std::optional<std::error_code> {
+#include <map>
+#include <print>
+#include <string>
+
+auto Database::insert_key(const std::string& key, std::shared_ptr<Object> value)
+    -> std::optional<std::error_code> {
     try {
         data[key] = value;
-    }
-    catch (...) {
+    } catch (...) {
         return std::make_optional(
             std::error_code(errno, std::generic_category()));
-    }    
+    }
     return std::nullopt;
 }
 
-auto Database::delete_key(const std::string& key) -> std::optional<std::error_code> {
+auto Database::delete_key(const std::string& key)
+    -> std::optional<std::error_code> {
     // Check if the key exists in the map
     auto it = data.find(key);
     if (it != data.end()) {
@@ -27,11 +29,13 @@ auto Database::delete_key(const std::string& key) -> std::optional<std::error_co
     }
 }
 
-auto Database::select(const std::string& key) -> std::expected<std::shared_ptr<Object>, std::error_code> {
+auto Database::select(const std::string& key)
+    -> std::expected<std::shared_ptr<Object>, std::error_code> {
     // Check if the key exists in the map
     const auto& it = data.find(key);
     if (it != data.end()) {
-        return std::expected<std::shared_ptr<Object>, std::error_code>(it->second);
+        return std::expected<std::shared_ptr<Object>, std::error_code>(
+            it->second);
     } else {
         // Return an error message if the key is not found
         return std::unexpected(std::error_code(errno, std::generic_category()));
@@ -48,20 +52,20 @@ void Database::show_objects() {
         auto aux = it.second.get()->asString();
         if (aux.has_value()) {
             auto printable_value = aux.value();
-            println("Key: {}, Value: {}, Timestamp: {}", it.first, printable_value, it.second.get()->get_timestamp());
-        } 
+            println("Key: {}, Value: {}, Timestamp: {}", it.first,
+                    printable_value, it.second.get()->get_timestamp());
+        }
     }
 }
 
-void Database::clear() {
-    this->data.clear();
-}
+void Database::clear() { this->data.clear(); }
 
 bool Database::exists(const std::string& key) const {
     return (this->data.find(key) != this->data.end());
 }
 
-auto Database::get_data() const -> const std::map<std::string, std::shared_ptr<Object>>& {
+auto Database::get_data() const
+    -> const std::map<std::string, std::shared_ptr<Object>>& {
     return this->data;
 }
 

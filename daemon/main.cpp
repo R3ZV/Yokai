@@ -21,7 +21,7 @@ void handle_client(int client) {
     while (true) {
         memset(buff, 0, BUFF_SIZE);
         ssize_t bytes_read = read(client, buff, BUFF_SIZE);
-	    std::println("\n[DBG]: Number of bytes read = {}", bytes_read);
+	      std::println("\n[DBG]: Number of bytes read = {}", bytes_read);
         if (bytes_read <= 0) {
             if (bytes_read == 0) {
                 std::println("[INFO]: Client '{}' disconnected!", client);

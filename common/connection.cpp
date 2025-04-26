@@ -75,7 +75,7 @@ auto Connection::send_msg(std::string msg) -> std::optional<std::error_code> {
     constexpr int BUFF_SIZE = 1024;
     char buff[BUFF_SIZE];
     strcpy(buff, msg.c_str());
-    
+
     if (send(socket_fd, buff, msg.size() + 1, 0) == -1) {
         return std::make_optional(
             std::error_code(errno, std::generic_category()));

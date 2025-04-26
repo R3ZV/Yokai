@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+    steps:
+    - name: Update system and install dependencies
+      run: |
+        pacman -Syu --noconfirm
+        pacman -S --noconfirm wget tar git clang zig
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check formatting
+      run: zig build format -Dcheck_format=true
+
+    - name: Build project
+      run: zig build

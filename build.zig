@@ -17,7 +17,9 @@ pub fn build(b: *std.Build) void {
     build_repl(b, target, optimize);
     build_daemon(b, target, optimize);
     build_tests(b, target, optimize);
-    format_code(b);
+
+    const check_opt = b.option(bool, "check_format", "Check if project is formatted correctly") orelse false;
+    format_code(b, check_opt);
     // build_docs(b, target, optimize);
 }
 
@@ -139,11 +141,8 @@ fn build_docs(
     // https://ziglang.org/learn/build-system/#system-tools
 }
 
-fn format_code(
-    b: *std.Build,
-) void {
-    const args = .{
-        "-i",
+fn format_code(b: *std.Build, check: bool) void {
+    const files = .{
         "daemon/main.cpp",
 
         "repl/main.cpp",
@@ -153,9 +152,23 @@ fn format_code(
 
         "tests/main.cpp",
     };
-    const tool_run = b.addSystemCommand(&.{"clang-format"});
-    tool_run.addArgs(&(args));
 
-    const format_step = b.step("format", "Run code formatting");
-    format_step.dependOn(&tool_run.step);
+    if (!check) {
+        const flags = .{"-i"};
+        const args = flags ++ files;
+        const tool_run = b.addSystemCommand(&.{"clang-format"});
+        tool_run.addArgs(&(args));
+
+        const format_step = b.step("format", "Run code formatting");
+        format_step.dependOn(&tool_run.step);
+    } else {
+        const flags = .{ "--dry-run", "--Werror" };
+        const args = flags ++ files;
+
+        const tool_run = b.addSystemCommand(&.{"clang-format"});
+        tool_run.addArgs(&(args));
+
+        const format_step = b.step("format", "Run code formatting");
+        format_step.dependOn(&tool_run.step);
+    }
 }

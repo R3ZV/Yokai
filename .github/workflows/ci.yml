@@ -22,13 +22,13 @@ jobs:
         wget https://ziglang.org/download/0.14.0/zig-linux-x86_64-0.14.0.tar.xz
         tar -xf zig-linux-x86_64-0.14.0.tar.xz
         mv zig-linux-x86_64-0.14.0 zig
-        echo "$PWD/zig" >> $GITHUB_PATH
+        echo "$(pwd)/zig" >> $GITHUB_PATH
 
     - name: Checkout code
       uses: actions/checkout@v4
 
     - name: Check formatting
-      run: ./zig/zig build format -Dcheck_format=true
+      run: zig build format -Dcheck_format=true
 
     - name: Build project
-      run: ./zig/zig build
+      run: zig build

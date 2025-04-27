@@ -12,6 +12,9 @@ jobs:
     container:
       image: archlinux:latest
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
     - name: Update system and install dependencies
       run: |
         pacman -Syu --noconfirm
@@ -23,9 +26,6 @@ jobs:
         tar -xf zig-linux-x86_64-0.14.0.tar.xz
         mv zig-linux-x86_64-0.14.0 zig
         echo "$(pwd)/zig" >> $GITHUB_PATH
-
-    - name: Checkout code
-      uses: actions/checkout@v4
 
     - name: Check formatting
       run: zig build format -Dcheck_format=true

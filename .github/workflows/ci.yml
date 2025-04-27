@@ -1,8 +1,6 @@
 name: CI
 
 on:
-  push:
-    branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
 
@@ -12,13 +10,20 @@ jobs:
     container:
       image: archlinux:latest
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
     - name: Update system and install dependencies
       run: |
         pacman -Syu --noconfirm
-        pacman -S --noconfirm wget tar git clang zig
+        pacman -S --noconfirm wget tar git clang
 
-    - name: Checkout code
-      uses: actions/checkout@v4
+    - name: Download and setup Zig 0.14.0
+      run: |
+        wget https://ziglang.org/download/0.14.0/zig-linux-x86_64-0.14.0.tar.xz
+        tar -xf zig-linux-x86_64-0.14.0.tar.xz
+        mv zig-linux-x86_64-0.14.0 zig
+        echo "$(pwd)/zig" >> $GITHUB_PATH
 
     - name: Check formatting
       run: zig build format -Dcheck_format=true

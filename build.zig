@@ -62,11 +62,11 @@ fn build_repl(
 
 const daemon_files = .{
     "daemon/main.cpp",
+    "daemon/database.cpp",
+    "daemon/transaction.cpp",
+    "daemon/list_database.cpp",
+    "daemon/object.cpp",
     "common/connection.cpp",
-    "common/object.cpp",
-    "common/database.cpp",
-    "common/transaction.cpp",
-    "common/list_database.cpp",
 };
 
 fn build_daemon(
@@ -150,10 +150,10 @@ fn build_docs(
 
 const header_files = .{
     "common/include/connection.h",
-    "common/include/database.h",
-    "common/include/object.h",
-    "common/include/list_database.h",
-    "common/include/transaction.h",
+    "daemon/include/object.h",
+    "daemon/include/database.h",
+    "daemon/include/list_database.h",
+    "daemon/include/transaction.h",
 };
 
 fn format_code(b: *std.Build, check: bool) void {

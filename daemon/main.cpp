@@ -5,9 +5,9 @@
 #include <vector>
 
 #include "../common/include/connection.h"
-#include "../common/include/database.h"
-#include "../common/include/list_database.h"
-#include "../common/include/transaction.h"
+#include "include/database.h"
+#include "include/list_database.h"
+#include "include/transaction.h"
 
 void handle_client(int client, ListDatabase* db) {
     constexpr int BUFF_SIZE = 1024;

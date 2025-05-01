@@ -1,7 +1,8 @@
 #include <iostream>
 
 #include "../common/include/connection.h"
-
+#include "../common/include/database.h"
+#include "../common/include/object.h"
 int main() {
     constexpr int32_t PORT = 8080;
     Connection conn = Connection(PORT);

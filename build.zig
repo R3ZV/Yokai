@@ -23,6 +23,11 @@ pub fn build(b: *std.Build) void {
     // build_docs(b, target, optimize);
 }
 
+const repl_files = .{
+    "repl/main.cpp",
+    "common/connection.cpp",
+};
+
 fn build_repl(
     b: *std.Build,
     target: ResolvedTarget,
@@ -37,12 +42,8 @@ fn build_repl(
 
     exe.linkLibCpp();
 
-    const repl_files = .{
-        "main.cpp",
-        "../common/connection.cpp",
-    };
     exe.addCSourceFiles(.{
-        .root = b.path("repl"),
+        .root = b.path("."),
         .files = &(repl_files),
         .flags = &CXX_FLAGS,
     });
@@ -59,6 +60,11 @@ fn build_repl(
     run_step.dependOn(&run_cmd.step);
 }
 
+const daemon_files = .{
+    "daemon/main.cpp",
+    "common/connection.cpp",
+};
+
 fn build_daemon(
     b: *std.Build,
     target: ResolvedTarget,
@@ -73,12 +79,8 @@ fn build_daemon(
 
     exe.linkLibCpp();
 
-    const daemon_files = .{
-        "main.cpp",
-        "../common/connection.cpp",
-    };
     exe.addCSourceFiles(.{
-        .root = b.path("daemon"),
+        .root = b.path("."),
         .files = &daemon_files,
         .flags = &CXX_FLAGS,
     });
@@ -95,6 +97,10 @@ fn build_daemon(
     run_step.dependOn(&run_cmd.step);
 }
 
+const test_files = .{
+    "tests/main.cpp",
+};
+
 fn build_tests(
     b: *std.Build,
     target: ResolvedTarget,
@@ -109,11 +115,8 @@ fn build_tests(
 
     unit_tests.linkLibCpp();
 
-    const test_files = .{
-        "main.cpp",
-    };
     unit_tests.addCSourceFiles(.{
-        .root = b.path("tests"),
+        .root = b.path("."),
         .files = &test_files,
         .flags = &CXX_FLAGS,
     });
@@ -141,17 +144,14 @@ fn build_docs(
     // https://ziglang.org/learn/build-system/#system-tools
 }
 
+const header_files = .{
+    "common/include/connection.h",
+    "common/include/database.h",
+    "common/include/object.h",
+};
+
 fn format_code(b: *std.Build, check: bool) void {
-    const files = .{
-        "daemon/main.cpp",
-
-        "repl/main.cpp",
-
-        "common/connection.cpp",
-        "common/include/connection.h",
-
-        "tests/main.cpp",
-    };
+    const files = daemon_files ++ repl_files ++ test_files ++ header_files;
 
     if (!check) {
         const flags = .{"-i"};

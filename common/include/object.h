@@ -1,8 +1,8 @@
 #pragma once
 
-#include<variant>
-#include<string>
-#include<optional>
+#include <optional>
+#include <string>
+#include <variant>
 
 #include <time.h>
 
@@ -17,8 +17,4 @@ class Object{
     Object(const std::string &str_data, time_t timestamp = time(nullptr));
     Object(const Object& obj) = default;
     Object& operator=(const Object& obj) = default;
-    std::optional<int> asInt() const;
-    std::optional<std::string> asString() const;
-    time_t get_timestamp() const;
-    void set_timestamp(time_t timestamp);
 };

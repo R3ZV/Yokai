@@ -3,11 +3,13 @@
 #include<variant>
 #include<string>
 #include<optional>
+
 #include <time.h>
 
 class Object{
-    std::variant<int, std::string> data; //for mow, we support ints and strings as values
-    //TODO: add support for fancier types, such as JSON    
+    std::variant<int, std::string> data;
+    // for mow, we support ints and strings as values
+    // TODO: add support for fancier types, such as JSON    
     time_t timestamp;
     public:
     Object() = default;

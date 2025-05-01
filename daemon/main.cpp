@@ -1,5 +1,3 @@
-#pragma GCC diagnostic ignored "-Wunused-variable"
-
 #include <string.h>
 
 #include <print>
@@ -11,13 +9,10 @@
 #include "../common/include/list_database.h"
 #include "../common/include/transaction.h"
 
-// create global database
-ListDatabase* global_dict = new ListDatabase();
-
-void handle_client(int client) {
+void handle_client(int client, ListDatabase* db) {
     constexpr int BUFF_SIZE = 1024;
     char buff[BUFF_SIZE];
-    Transaction* user_transaction = new Transaction(global_dict);
+    Transaction* user_transaction = new Transaction(db);
 
     while (true) {
         memset(buff, 0, BUFF_SIZE);
@@ -42,6 +37,8 @@ void handle_client(int client) {
 }
 
 int main() {
+    ListDatabase* db = new ListDatabase();
+
     constexpr int32_t PORT = 8080;
     constexpr int32_t NUM_CLIENTS = 3;
 
@@ -60,7 +57,7 @@ int main() {
             std::cerr << client_fd.error().message() << std::endl;
         }
 
-        std::thread client_thread(handle_client, client_fd.value());
+        std::thread client_thread(handle_client, client_fd.value(), db);
         client_thread.detach();
     }
     return 0;

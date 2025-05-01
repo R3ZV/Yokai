@@ -10,20 +10,22 @@ Object::Object(int integer_data, time_t timestamp)
 Object::Object(const std::string &string_data, time_t timestamp)
     : data(string_data), timestamp(timestamp) {}
 
-std::optional<int> Object::asInt() const {
+auto Object::asInt() const -> std::optional<int> {
     if (auto ptr = std::get_if<int>(&data)) {
         return *ptr;
     }
     return std::nullopt;
 }
 
-std::optional<std::string> Object::asString() const {
+auto Object::asString() const -> std::optional<std::string> {
     if (auto ptr = std::get_if<std::string>(&data)) {
         return *ptr;
     }
     return std::nullopt;
 }
 
-time_t Object::get_timestamp() const { return timestamp; }
+auto Object::get_timestamp() const -> time_t { return timestamp; }
 
-void Object::set_timestamp(time_t timestamp) { this->timestamp = timestamp; }
+auto Object::set_timestamp(time_t timestamp) -> void {
+    this->timestamp = timestamp;
+}

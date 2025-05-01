@@ -15,7 +15,7 @@ class Transaction {
 
    public:
     Transaction(ListDatabase* global_store);
-    void handle_command(char* buff);
-    void commit();
+    auto handle_command(char* buff) -> void;
+    auto commit() -> void;
     ~Transaction();
 };

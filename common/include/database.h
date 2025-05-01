@@ -13,14 +13,17 @@ class Database {
 
    public:
     auto insert_key(const std::string& key, std::shared_ptr<Object> value)
-        -> std::optional<std::error_code>;
-    auto delete_key(const std::string& key) -> std::optional<std::error_code>;
+        -> std::expected<void, std::error_code>;
+
+    auto delete_key(const std::string& key)
+        -> std::expected<void, std::error_code>;
     auto select(const std::string& key)
         -> std::expected<std::shared_ptr<Object>, std::error_code>;
-    void show_objects();
-    void clear();
-    bool exists(const std::string& key) const;
+
+    auto show_objects() -> void;
+    auto clear() -> void;
+    auto exists(const std::string& key) const -> bool;
     auto get_data() const
         -> const std::map<std::string, std::shared_ptr<Object>>&;
-    void update_timestamps(time_t timestamp);
+    auto update_timestamps(time_t timestamp) -> void;
 };

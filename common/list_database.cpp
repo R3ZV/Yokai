@@ -23,7 +23,7 @@ auto ListDatabase::select_latest(const std::string& key,
     return std::unexpected(std::error_code(errno, std::generic_category()));
 }
 
-void ListDatabase::show_objects() {
+auto ListDatabase::show_objects() -> void {
     if (this->data.empty()) {
         std::println("\nNothing to show!");
         return;
@@ -74,6 +74,6 @@ auto ListDatabase::update(Database& write_buffer, time_t commit_timestamp)
     return std::nullopt;
 }
 
-bool ListDatabase::exists(const std::string& key) {
+auto ListDatabase::exists(const std::string& key) -> bool {
     return (this->data.find(key) != this->data.end());
 }

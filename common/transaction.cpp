@@ -11,7 +11,7 @@ Transaction::Transaction(ListDatabase* global_store)
       write_buffer(new Database()),
       timestamp(time(nullptr)) {}
 
-void Transaction::handle_command(char* buff) {
+auto Transaction::handle_command(char* buff) -> void {
     // COMMANDS:
     // SET [key] [val]
     // DEL [key]
@@ -62,17 +62,17 @@ void Transaction::handle_command(char* buff) {
         // First we clean up the key from the local store and write buffer
         if (this->local_store->exists(tokens[1])) {
             // Delete the key
-            auto err = this->local_store->delete_key(tokens[1]);
-            if (err != std::nullopt) {
-                std::cerr << err.value().message() << std::endl;
+            auto res = this->local_store->delete_key(tokens[1]);
+            if (!res.has_value()) {
+                std::cerr << res.error().message() << std::endl;
                 return;
             }
         }
         if (this->write_buffer->exists(tokens[1])) {
             // Delete the key
-            auto err = this->write_buffer->delete_key(tokens[1]);
-            if (err != std::nullopt) {
-                std::cerr << err.value().message() << std::endl;
+            auto res = this->write_buffer->delete_key(tokens[1]);
+            if (!res.has_value()) {
+                std::cerr << res.error().message() << std::endl;
                 return;
             }
         }
@@ -83,11 +83,11 @@ void Transaction::handle_command(char* buff) {
         if (this->global_store->select_latest(tokens[1], this->timestamp)
                 .has_value()) {
             // Mark the key as deleted
-            auto err = this->write_buffer->insert_key(
+            auto res = this->write_buffer->insert_key(
                 tokens[1],
                 std::make_shared<Object>("DELETED", this->timestamp));
-            if (err != std::nullopt) {
-                std::cerr << err.value().message() << std::endl;
+            if (!res.has_value()) {
+                std::cerr << res.error().message() << std::endl;
                 return;
             }
         }
@@ -150,7 +150,7 @@ void Transaction::handle_command(char* buff) {
     }
 }
 
-void Transaction::commit() {
+auto Transaction::commit() -> void {
     // Print all the commands inside the transaction
     if (commands.size()) {
         std::println("[DBG] Commands exectued: ");

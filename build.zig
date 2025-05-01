@@ -148,8 +148,16 @@ fn build_docs(
     // https://ziglang.org/learn/build-system/#system-tools
 }
 
+const header_files = .{
+    "common/include/connection.h",
+    "common/include/database.h",
+    "common/include/object.h",
+    "common/include/list_database.h",
+    "common/include/transaction.h",
+};
+
 fn format_code(b: *std.Build, check: bool) void {
-    const files = daemon_files ++ repl_files ++ test_files;
+    const files = daemon_files ++ repl_files ++ test_files ++ header_files;
 
     if (!check) {
         const flags = .{"-i"};

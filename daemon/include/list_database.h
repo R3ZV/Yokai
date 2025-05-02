@@ -20,6 +20,6 @@ class ListDatabase {
         -> std::expected<std::shared_ptr<Object>, std::error_code>;
     auto show_objects() -> void;
     auto update(Database& other, time_t commit_timestamp)
-        -> std::optional<std::error_code>;
+        -> std::expected<void, std::error_code>;
     auto exists(const std::string& key) -> bool;
 };

@@ -32,6 +32,8 @@ auto Database::select(const std::string& key)
     if (it != data.end()) {
         return it->second;
     }
+    // TODO: Return an error which specifies that there is no entry with value
+    // `key`
     return std::unexpected(std::error_code(errno, std::generic_category()));
 }
 

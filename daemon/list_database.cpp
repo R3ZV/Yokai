@@ -14,8 +14,7 @@ auto ListDatabase::select_latest(const std::string& key,
         for (auto object = object_list.rbegin(); object != object_list.rend();
              object++) {
             if (object->get()->get_timestamp() < transaction_timestamp) {
-                return std::expected<std::shared_ptr<Object>, std::error_code>(
-                    *object);
+                return *object;
             }
         }
     }
@@ -43,7 +42,7 @@ auto ListDatabase::show_objects() -> void {
 }
 
 auto ListDatabase::update(Database& write_buffer, time_t commit_timestamp)
-    -> std::optional<std::error_code> {
+    -> std::expected<void, std::error_code> {
     std::unique_lock<std::mutex> lock(this->commit_lock);
     try {
         // First check there are no collissions with other transaction commits
@@ -55,7 +54,7 @@ auto ListDatabase::update(Database& write_buffer, time_t commit_timestamp)
                 this->data[key].back().get()->get_timestamp() >
                     value.get()->get_timestamp()) {
                 std::println("Aborting transaction!");
-                return std::nullopt;
+                return {};
             }
         }
 
@@ -68,10 +67,9 @@ auto ListDatabase::update(Database& write_buffer, time_t commit_timestamp)
             this->data[it.first].push_back(it.second);
         }
     } catch (...) {
-        return std::make_optional(
-            std::error_code(errno, std::generic_category()));
+        return std::unexpected(std::error_code(errno, std::generic_category()));
     }
-    return std::nullopt;
+    return {};
 }
 
 auto ListDatabase::exists(const std::string& key) -> bool {

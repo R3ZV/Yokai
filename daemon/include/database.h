@@ -25,5 +25,5 @@ class Database {
     auto exists(const std::string& key) const -> bool;
     auto get_data() const
         -> const std::map<std::string, std::shared_ptr<Object>>&;
-    auto update_timestamps(time_t timestamp) -> void;
+    auto update_timestamps(int64_t timestamp) -> void;
 };

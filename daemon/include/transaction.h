@@ -11,11 +11,12 @@ class Transaction {
     Database* write_buffer;
     std::vector<std::vector<std::string>> commands;
     bool ongoing = false;
-    time_t timestamp;
+    int64_t timestamp;
 
    public:
     Transaction(ListDatabase* global_store);
-    auto handle_command(char* buff) -> void;
+    auto handle_command(std::string buff) -> void;
     auto commit() -> void;
     ~Transaction();
+    auto get_local_store() -> Database*;
 };

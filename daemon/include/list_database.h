@@ -16,10 +16,10 @@ class ListDatabase {
     std::mutex commit_lock;
 
    public:
-    auto select_latest(const std::string& key, time_t transaction_timestamp)
+    auto select_latest(const std::string& key, int64_t transaction_timestamp)
         -> std::expected<std::shared_ptr<Object>, std::error_code>;
     auto show_objects() -> void;
-    auto update(Database& other, time_t commit_timestamp)
+    auto update(Database& other, int64_t commit_timestamp)
         -> std::expected<void, std::error_code>;
     auto exists(const std::string& key) -> bool;
 };

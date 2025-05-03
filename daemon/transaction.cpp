@@ -9,7 +9,7 @@ Transaction::Transaction(ListDatabase* global_store)
     : global_store(global_store),
       local_store(new Database()),
       write_buffer(new Database()),
-      timestamp(time(nullptr)) {}
+      timestamp(Object::get_current_time()) {}
 
 auto Transaction::handle_command(std::string buff) -> void {
     // COMMANDS:
@@ -42,7 +42,7 @@ auto Transaction::handle_command(std::string buff) -> void {
     }
     // Update the transaction timestamp if it is a new transaction
     if (!this->ongoing) {
-        this->timestamp = time(nullptr);
+        this->timestamp = Object::get_current_time();
     }
 
     // SET
@@ -162,7 +162,7 @@ auto Transaction::commit() -> void {
     }
 
     // Update the global dict with the local changes
-    time_t commit_time = time(nullptr);
+    int64_t commit_time = Object::get_current_time();
     global_store->update(*write_buffer, commit_time);
     commands.clear();
     local_store->clear();

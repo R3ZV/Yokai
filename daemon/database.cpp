@@ -64,7 +64,7 @@ auto Database::get_data() const
     return this->data;
 }
 
-auto Database::update_timestamps(time_t timestamp) -> void {
+auto Database::update_timestamps(int64_t timestamp) -> void {
     for (const auto& it : this->data) {
         it.second.get()->set_timestamp(timestamp);
     }

@@ -3,7 +3,7 @@
 #include <print>
 
 auto ListDatabase::select_latest(const std::string& key,
-                                 time_t transaction_timestamp)
+                                 int64_t transaction_timestamp)
     -> std::expected<std::shared_ptr<Object>, std::error_code> {
     // Check if the key exists in the map
     const auto& it = data.find(key);
@@ -41,7 +41,7 @@ auto ListDatabase::show_objects() -> void {
     }
 }
 
-auto ListDatabase::update(Database& write_buffer, time_t commit_timestamp)
+auto ListDatabase::update(Database& write_buffer, int64_t commit_timestamp)
     -> std::expected<void, std::error_code> {
     std::unique_lock<std::mutex> lock(this->commit_lock);
     try {

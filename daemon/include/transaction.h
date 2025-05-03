@@ -11,7 +11,7 @@ class Transaction {
     Database* write_buffer;
     std::vector<std::vector<std::string>> commands;
     bool ongoing = false;
-    time_t timestamp;
+    int64_t timestamp;
 
    public:
     Transaction(ListDatabase* global_store);

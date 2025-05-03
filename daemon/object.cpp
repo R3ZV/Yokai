@@ -32,6 +32,6 @@ auto Object::set_timestamp(int64_t timestamp) -> void {
 
 auto Object::get_current_time() -> int64_t {
     return duration_cast<std::chrono::microseconds>(
-        std::chrono::high_resolution_clock::now().time_since_epoch()
-    ).count();
+               std::chrono::high_resolution_clock::now().time_since_epoch())
+        .count();
 }

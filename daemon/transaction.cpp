@@ -1,9 +1,10 @@
 #include "include/transaction.h"
 
 #include <string.h>
-#include <sstream>
+
 #include <iostream>
 #include <print>
+#include <sstream>
 
 Transaction::Transaction(ListDatabase* global_store)
     : global_store(global_store),
@@ -174,6 +175,4 @@ Transaction::~Transaction() {
     delete write_buffer;
 }
 
-auto Transaction::get_local_store() -> Database* {
-    return this->local_store;
-}
+auto Transaction::get_local_store() -> Database* { return this->local_store; }

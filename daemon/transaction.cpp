@@ -1,7 +1,7 @@
 #include "include/transaction.h"
 
 #include <string.h>
-
+#include <sstream>
 #include <iostream>
 #include <print>
 
@@ -11,7 +11,7 @@ Transaction::Transaction(ListDatabase* global_store)
       write_buffer(new Database()),
       timestamp(time(nullptr)) {}
 
-auto Transaction::handle_command(char* buff) -> void {
+auto Transaction::handle_command(std::string buff) -> void {
     // COMMANDS:
     // SET [key] [val]
     // DEL [key]
@@ -22,14 +22,12 @@ auto Transaction::handle_command(char* buff) -> void {
     // MULTI  (begin multiple command transaction)
     // EXEC  (execute multiple command transaction)
     std::vector<std::string> tokens;
-    char* token = strtok(buff, " ");
+    std::istringstream iss(buff);
+    std::string token;
 
-    while (token != nullptr) {
+    while (iss >> token) {
         // Add token to vector
         tokens.push_back(token);
-
-        // Get the next token
-        token = strtok(nullptr, " ");
     }
 
     std::println("[BDG]: Tokens: ");
@@ -174,4 +172,8 @@ auto Transaction::commit() -> void {
 Transaction::~Transaction() {
     delete local_store;
     delete write_buffer;
+}
+
+auto Transaction::get_local_store() -> Database* {
+    return this->local_store;
 }

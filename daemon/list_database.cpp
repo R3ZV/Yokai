@@ -13,7 +13,7 @@ auto ListDatabase::select_latest(const std::string& key,
         const auto& object_list = it->second;
         for (auto object = object_list.rbegin(); object != object_list.rend();
              object++) {
-            if (object->get()->get_timestamp() < transaction_timestamp) {
+            if (object->get()->get_timestamp() <= transaction_timestamp) {
                 return *object;
             }
         }

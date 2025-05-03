@@ -66,6 +66,7 @@ const daemon_files = .{
     "daemon/transaction.cpp",
     "daemon/list_database.cpp",
     "daemon/object.cpp",
+    "daemon/command.cpp",
     "common/connection.cpp",
 };
 
@@ -105,6 +106,9 @@ const test_files = .{
     "tests/main.cpp",
     "tests/test_database.cpp",
     "tests/test_transaction.cpp",
+    "tests/test_command.cpp",
+
+    "daemon/command.cpp",
     "daemon/database.cpp",
     "daemon/transaction.cpp",
     "daemon/list_database.cpp",
@@ -157,6 +161,7 @@ fn build_docs(
 const header_files = .{
     "common/include/connection.h",
     "daemon/include/object.h",
+    "daemon/include/command.h",
     "daemon/include/database.h",
     "daemon/include/list_database.h",
     "daemon/include/transaction.h",

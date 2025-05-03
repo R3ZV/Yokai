@@ -13,15 +13,6 @@ Transaction::Transaction(ListDatabase* global_store)
       timestamp(Object::get_current_time()) {}
 
 auto Transaction::handle_command(std::string buff) -> void {
-    // COMMANDS:
-    // SET [key] [val]
-    // DEL [key]
-    // SELECT [key]
-    // SHOW  (shows global dict)
-    // SHOW LOCAL  (shows thread local dict/read buffer)
-    // SHOW WRITE  (shows write buffer)
-    // MULTI  (begin multiple command transaction)
-    // EXEC  (execute multiple command transaction)
     std::vector<std::string> tokens;
     std::istringstream iss(buff);
     std::string token;

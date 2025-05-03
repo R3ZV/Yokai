@@ -30,3 +30,6 @@ jobs:
 
     - name: Build project
       run: zig build
+
+    - name: Run tests
+      run: zig build test

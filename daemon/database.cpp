@@ -4,6 +4,16 @@
 #include <print>
 #include <string>
 
+/**
+ * This function acts as both an insert and an upload
+ * since if you already have the key in the database
+ * and call insert again it will replace the value
+ * with the new one.
+ *
+ * @param key which entry in the database to change
+ * @param value is the new value of key
+ * @return an error in case setting the key to value failed or void
+ */
 auto Database::insert_key(const std::string& key, std::shared_ptr<Object> value)
     -> std::expected<void, std::error_code> {
     try {

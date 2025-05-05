@@ -20,7 +20,7 @@ pub fn build(b: *std.Build) void {
 
     const check_opt = b.option(bool, "check_format", "Check if project is formatted correctly") orelse false;
     format_code(b, check_opt);
-    // build_docs(b, target, optimize);
+    build_docs(b);
 }
 
 const repl_files = .{
@@ -145,13 +145,14 @@ fn build_tests(
 
 fn build_docs(
     b: *std.Build,
-    target: ResolvedTarget,
-    optimize: OptimizeMode,
 ) void {
-    _ = b;
-    _ = target;
-    _ = optimize;
-    // https://ziglang.org/learn/build-system/#system-tools
+    const args = .{ "docs_config" };
+
+    const tool_run = b.addSystemCommand(&.{"doxygen"});
+    tool_run.addArgs(&(args));
+
+    const docs_step = b.step("docs", "Generate docs");
+    docs_step.dependOn(&tool_run.step);
 }
 
 const header_files = .{

@@ -1,5 +1,6 @@
 #include "include/list_database.h"
 
+#include <format>
 #include <print>
 
 auto ListDatabase::select_latest(const std::string& key,
@@ -22,23 +23,24 @@ auto ListDatabase::select_latest(const std::string& key,
     return std::unexpected(std::error_code(errno, std::generic_category()));
 }
 
-auto ListDatabase::show_objects() -> void {
+auto ListDatabase::show_objects() -> std::string {
     if (this->data.empty()) {
-        std::println("\nNothing to show!");
-        return;
+        return "Nothing to show!\n";
     }
-    std::println("\nShowing data:");
+    std::string res = "Data:\n";
     for (const auto& it : this->data) {
-        println("Key: {}", it.first);
+        res.append(std::format("Key: {} ", it.first));
         for (const auto& value : it.second) {
             auto aux = value.get()->asString();
             if (aux.has_value()) {
                 auto printable_value = aux.value();
-                println("{} - {}", printable_value,
-                        value.get()->get_timestamp());
+                res.append(std::format("Val: {} - timestamp: {}\n",
+                                       printable_value,
+                                       value.get()->get_timestamp()));
             }
         }
     }
+    return res;
 }
 
 auto ListDatabase::update(Database& write_buffer, int64_t commit_timestamp)

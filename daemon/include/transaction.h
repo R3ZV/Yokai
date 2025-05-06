@@ -15,7 +15,7 @@ class Transaction {
 
    public:
     Transaction(ListDatabase* global_store);
-    auto handle_command(std::string buff) -> void;
+    auto handle_command(std::string buff) -> std::optional<std::string>;
     auto commit() -> void;
     ~Transaction();
     auto get_local_store() -> Database*;

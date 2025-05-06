@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include <iostream>
+#include <optional>
 #include <print>
 #include <sstream>
 
@@ -12,7 +13,7 @@ Transaction::Transaction(ListDatabase* global_store)
       write_buffer(new Database()),
       timestamp(Object::get_current_time()) {}
 
-auto Transaction::handle_command(std::string buff) -> void {
+auto Transaction::handle_command(std::string buff) -> std::optional<std::string> {
     // COMMANDS:
     // SET [key] [val]
     // DEL [key]
@@ -64,7 +65,7 @@ auto Transaction::handle_command(std::string buff) -> void {
             auto res = this->local_store->delete_key(tokens[1]);
             if (!res.has_value()) {
                 std::cerr << res.error().message() << std::endl;
-                return;
+                return std::nullopt;
             }
         }
         if (this->write_buffer->exists(tokens[1])) {
@@ -72,7 +73,7 @@ auto Transaction::handle_command(std::string buff) -> void {
             auto res = this->write_buffer->delete_key(tokens[1]);
             if (!res.has_value()) {
                 std::cerr << res.error().message() << std::endl;
-                return;
+                return std::nullopt;
             }
         }
 
@@ -87,7 +88,7 @@ auto Transaction::handle_command(std::string buff) -> void {
                 std::make_shared<Object>("DELETED", this->timestamp));
             if (!res.has_value()) {
                 std::cerr << res.error().message() << std::endl;
-                return;
+                return std::nullopt;
             }
         }
 
@@ -102,7 +103,7 @@ auto Transaction::handle_command(std::string buff) -> void {
             res = this->global_store->select_latest(tokens[1], this->timestamp);
             if (!res.has_value()) {
                 std::cerr << res.error().message() << std::endl;
-                return;
+                return std::nullopt;
             }
             // Add the object to the local store
             std::println("Debug");
@@ -114,22 +115,22 @@ auto Transaction::handle_command(std::string buff) -> void {
         auto aux = value.get()->asString();
         if (aux.has_value()) {
             auto printable_value = aux.value();
-            println("Key: {}, Value: {}", tokens[1], printable_value);
+            std::println("Key: {}, Value: {}", tokens[1], printable_value);
         }
     }
     // SHOW
     else if (tokens.size() == 1 && tokens[0] == "SHOW") {
-        this->global_store->show_objects();
+        return this->global_store->show_objects();
     }
     // SHOW LOCAL (for debugging purposes)
     else if (tokens.size() == 2 && tokens[0] == "SHOW" &&
              tokens[1] == "LOCAL") {
-        this->local_store->show_objects();
+        return this->local_store->show_objects();
     }
     // SHOW WRITE (for debug)
     else if (tokens.size() == 2 && tokens[0] == "SHOW" &&
              tokens[1] == "WRITE") {
-        this->write_buffer->show_objects();
+        return this->write_buffer->show_objects();
     }
     // MULTI
     else if (tokens.size() == 1 && tokens[0] == "MULTI") {
@@ -147,6 +148,7 @@ auto Transaction::handle_command(std::string buff) -> void {
         this->commit();
         commands.clear();
     }
+    return std::nullopt;
 }
 
 auto Transaction::commit() -> void {

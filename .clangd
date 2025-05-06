@@ -1,0 +1,12 @@
+CompileFlags:
+  Add: [
+    "-I./daemon/include",
+    "-I./common/include",
+    "-I./repl/include",
+    "-I./lib/",
+    "-std=c++23",
+    "-pedantic",
+    "-Werror",
+    "-Wall",
+    "-Wextra"
+  ]

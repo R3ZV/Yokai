@@ -18,7 +18,7 @@ class ListDatabase {
    public:
     auto select_latest(const std::string& key, int64_t transaction_timestamp)
         -> std::expected<std::shared_ptr<Object>, std::error_code>;
-    auto show_objects() -> void;
+    auto show_objects() -> std::string;
     auto update(Database& other, int64_t commit_timestamp)
         -> std::expected<void, std::error_code>;
     auto exists(const std::string& key) -> bool;

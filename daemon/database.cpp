@@ -5,10 +5,7 @@
 #include <string>
 
 /**
- * This function acts as both an insert and an upload
- * since if you already have the key in the database
- * and call insert again it will replace the value
- * with the new one.
+ * This function takes two integers and returns their sum.
  *
  * @param key which entry in the database to change
  * @param value is the new value of key
@@ -47,20 +44,20 @@ auto Database::select(const std::string& key)
     return std::unexpected(std::error_code(errno, std::generic_category()));
 }
 
-auto Database::show_objects() -> void {
+auto Database::show_objects() -> std::string {
     if (this->data.empty()) {
-        std::println("\nNothing to show!");
-        return;
+        return "Nothing to show!";
     }
-    std::println("\nShowing data:");
+    std::string res = "Data:\n";
     for (const auto& it : this->data) {
         auto aux = it.second.get()->asString();
         if (aux.has_value()) {
             auto printable_value = aux.value();
-            println("Key: {}, Value: {}, Timestamp: {}", it.first,
-                    printable_value, it.second.get()->get_timestamp());
+            res.append(std::format("Key: {}, Value: {}, Timestamp: {}", it.first,
+                    printable_value, it.second.get()->get_timestamp()));
         }
     }
+    return res;
 }
 
 auto Database::clear() -> void { this->data.clear(); }

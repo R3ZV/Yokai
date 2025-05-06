@@ -20,7 +20,7 @@ class Database {
     auto select(const std::string& key)
         -> std::expected<std::shared_ptr<Object>, std::error_code>;
 
-    auto show_objects() -> void;
+    auto show_objects() -> std::string;
     auto clear() -> void;
     auto exists(const std::string& key) const -> bool;
     auto get_data() const

@@ -1,9 +1,10 @@
 #include "include/command.h"
 
+#include <format>
 #include <sstream>
 #include <string>
 
-auto Command::parse(const std::string &blob) -> std::vector<Command> {
+auto Command::parse(const std::string& blob) -> std::vector<Command> {
     std::vector<Command> commands;
 
     std::istringstream lines(blob);
@@ -34,15 +35,18 @@ auto Command::parse(const std::string &blob) -> std::vector<Command> {
                 if (it + 1 == tokens.end()) {
                     continue;
                 }
-                commands.emplace_back(Command(CommandType::SELECT, {*(it + 1)}));
+                commands.emplace_back(
+                    Command(CommandType::SELECT, {*(it + 1)}));
             } else if (*it == "SHOW") {
                 if (it + 1 == tokens.end()) {
                     commands.emplace_back(Command(CommandType::SHOW, {}));
                 } else {
                     if (*(it + 1) == "LOCAL") {
-                        commands.emplace_back(Command(CommandType::SHOW_LOCAL, {}));
+                        commands.emplace_back(
+                            Command(CommandType::SHOW_LOCAL, {}));
                     } else if (*(it + 1) == "WRITE") {
-                        commands.emplace_back(Command(CommandType::SHOW_WRITE, {}));
+                        commands.emplace_back(
+                            Command(CommandType::SHOW_WRITE, {}));
                     } else {
                         continue;
                     }
@@ -52,13 +56,15 @@ auto Command::parse(const std::string &blob) -> std::vector<Command> {
             } else if (*it == "MULTI") {
                 commands.emplace_back(Command(CommandType::MULTI, {}));
             } else {
-                // unsupported command
+                commands.emplace_back(Command(CommandType::INVALID, {}));
             }
         }
     }
 
     return commands;
 }
-auto Command::get_type() -> CommandType { return this->type; }
 
-auto Command::get_args() -> std::vector<std::string> { return this->args; }
+auto Command::get_type() const -> CommandType { return this->type; }
+auto Command::get_args() const -> std::vector<std::string> {
+    return this->args;
+}

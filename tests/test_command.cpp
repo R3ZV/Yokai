@@ -19,8 +19,7 @@ TEST_CASE("Test non-transactions") {
         Command(CommandType::DEL, {"RADU"}),
         Command(CommandType::SHOW, {}),
         Command(CommandType::SHOW_LOCAL, {}),
-        Command(CommandType::SHOW_WRITE, {})
-    };
+        Command(CommandType::SHOW_WRITE, {})};
 
     CHECK(res.size() == expected.size());
     for (size_t i = 0; i < res.size(); i++) {

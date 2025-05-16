@@ -2,16 +2,10 @@
 #include "../lib/doctest.h"
 
 TEST_CASE("Test non-transactions") {
-    std::string blob =
-        "SET RADU 10252\n"
-        "SET RAZVAN vac\n"
-        "SELECT RAZVAN\n"
-        "DEL RADU\n"
-        "SHOW\n"
-        "SHOW LOCAL\n"
-        "SHOW WRITE\n";
+    std::vector<std::string> blobs = {
+        "SET RADU 10252\n", "SET RAZVAN vac\n", "SELECT RAZVAN\n", "DEL RADU\n",
+        "SHOW\n",           "SHOW LOCAL\n",     "SHOW WRITE\n"};
 
-    auto res = Command::parse(blob);
     std::vector<Command> expected = {
         Command(CommandType::SET, {"RADU", "10252"}),
         Command(CommandType::SET, {"RAZVAN", "vac"}),
@@ -21,23 +15,18 @@ TEST_CASE("Test non-transactions") {
         Command(CommandType::SHOW_LOCAL, {}),
         Command(CommandType::SHOW_WRITE, {})};
 
-    CHECK(res.size() == expected.size());
-    for (size_t i = 0; i < res.size(); i++) {
-        CHECK(res[i].get_type() == expected[i].get_type());
-        CHECK(res[i].get_args() == expected[i].get_args());
+    for (size_t i = 0; i < expected.size(); i++) {
+        auto res = Command::parse(blobs[i])[0];
+        CHECK(res.get_type() == expected[i].get_type());
+        CHECK(res.get_args() == expected[i].get_args());
     }
 }
 
 TEST_CASE("Test transactions") {
-    std::string blob =
-        "MULTI\n"
-        "SET RADU 10\n"
-        "SET RAZVAN 30\n"
-        "SELECT RAZVAN\n"
-        "DEL RADU\n"
-        "EXEC\n";
+    std::vector<std::string> blobs = {"MULTI\n",         "SET RADU 10\n",
+                                      "SET RAZVAN 30\n", "SELECT RAZVAN\n",
+                                      "DEL RADU\n",      "EXEC\n"};
 
-    auto res = Command::parse(blob);
     std::vector<Command> expected = {
         Command(CommandType::MULTI, {}),
         Command(CommandType::SET, {"RADU", "10"}),
@@ -47,34 +36,36 @@ TEST_CASE("Test transactions") {
         Command(CommandType::EXEC, {}),
     };
 
-    CHECK(res.size() == expected.size());
-    for (size_t i = 0; i < res.size(); i++) {
-        CHECK(res[i].get_type() == expected[i].get_type());
-        CHECK(res[i].get_args() == expected[i].get_args());
+    for (size_t i = 0; i < expected.size(); i++) {
+        auto res = Command::parse(blobs[i])[0];
+        CHECK(res.get_type() == expected[i].get_type());
+        CHECK(res.get_args() == expected[i].get_args());
     }
 }
 
 TEST_CASE("Test wrong commands") {
-    std::string blob =
-        "ST RADU 10\n"
-        "SET RAZVAN 30\n"
-        "SLECT RAZVAN\n"
-        "DET RADU\n"
-        "SET AURICA 420\n"
-        "DET\n"
-        "SLECT\n"
-        "ST RADU\n"
-        "ST\n";
-
-    auto res = Command::parse(blob);
-    std::vector<Command> expected = {
-        Command(CommandType::SET, {"RAZVAN", "30"}),
-        Command(CommandType::SET, {"AURICA", "420"}),
+    std::vector<std::string> blobs = {
+        "ST RADU 10\n", "SET RAZVAN 30\n",  "SLECT RAZVAN\n",
+        "DET RADU\n",   "SET AURICA 420\n", "DET\n",
+        "SLECT\n",      "ST RADU\n",        "ST\n",
     };
 
-    CHECK(res.size() == expected.size());
-    for (size_t i = 0; i < res.size(); i++) {
-        CHECK(res[i].get_type() == expected[i].get_type());
-        CHECK(res[i].get_args() == expected[i].get_args());
+    std::vector<Command> expected = {
+        Command(CommandType::INVALID, {}),
+        Command(CommandType::SET, {"RAZVAN", "30"}),
+        Command(CommandType::INVALID, {}),
+        Command(CommandType::INVALID, {}),
+        Command(CommandType::SET, {"AURICA", "420"}),
+        Command(CommandType::INVALID, {}),
+        Command(CommandType::INVALID, {}),
+        Command(CommandType::INVALID, {}),
+        Command(CommandType::INVALID, {}),
+    };
+
+    for (size_t i = 0; i < expected.size(); i++) {
+        auto res = Command::parse(blobs[i])[0];
+
+        CHECK(res.get_type() == expected[i].get_type());
+        CHECK(res.get_args() == expected[i].get_args());
     }
 }

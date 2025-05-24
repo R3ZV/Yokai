@@ -22,4 +22,6 @@ class ListDatabase {
     auto update(Database& other, int64_t commit_timestamp)
         -> std::expected<void, std::error_code>;
     auto exists(const std::string& key) -> bool;
+    auto get_data() const
+        -> const std::map<std::string, std::deque<std::shared_ptr<Object>>>&;
 };

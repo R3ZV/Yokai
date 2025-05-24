@@ -2,12 +2,20 @@
 
 #include <print>
 #include <thread>
+#include <fstream>
 #include <vector>
+#include <unordered_map>
+#include <wait.h>
 
 #include "../common/include/connection.h"
 #include "include/database.h"
 #include "include/list_database.h"
 #include "include/transaction.h"
+
+// Interval in seconds for saving data
+constexpr int SAVE_INTERVAL = 10;
+
+std::atomic<bool> running{true};
 
 void handle_client(int client, ListDatabase* db) {
     constexpr int BUFF_SIZE = 1024;
@@ -36,6 +44,66 @@ void handle_client(int client, ListDatabase* db) {
     close(client);
 }
 
+std::string generate_timestamped_filename() {
+    auto now = std::chrono::system_clock::now();
+    std::time_t time_now = std::chrono::system_clock::to_time_t(now);
+
+    std::ostringstream oss;
+    oss << "saves/debug-";
+    oss << std::put_time(std::localtime(&time_now), "%Y%m%d-%H%M%S");
+    oss << ".txt";
+
+    return oss.str();
+}
+
+std::string save_to_debug_file(const std::map<std::string, std::deque<std::shared_ptr<Object>>> & db) {
+    std::string filename = generate_timestamped_filename();
+
+    std::ofstream out(filename);
+    if (!out) {
+        throw std::runtime_error("Could not open file for writing: " + filename);
+    }
+
+    for (const auto& [key, value] : db) {
+        out << key << '\t' << value.size() << '\n';
+    }
+
+    out.close();
+    return filename;
+}
+
+void save_loop(ListDatabase* db) {
+    while (running) {
+        std::this_thread::sleep_for(std::chrono::seconds(SAVE_INTERVAL));
+        std::println("[DBG] Trying to save");
+
+        pid_t pid = fork();
+        if (pid == 0) {
+            try {
+                std::string filename = save_to_debug_file(db->get_data());
+                std::cout << "[DBG] Saved data to " << filename << std::endl;
+            } catch (const std::exception& e) {
+                std::cerr << "[DBG] Save failed: " << e.what() << std::endl;
+            }
+            _exit(0);
+        } else if (pid < 0) {
+            std::cerr << "Failed to fork process for saving." << std::endl;
+        }
+
+        // Clean up children
+        int status;
+        pid_t finished_pid;
+        while ((finished_pid = waitpid(-1, &status, WNOHANG)) > 0) {
+            if (WIFEXITED(status)) {
+                int exit_code = WEXITSTATUS(status);
+                std::cout << "[DBG] Child " << finished_pid << " exited with code " << exit_code << "\n";
+            } else if (WIFSIGNALED(status)) {
+                std::cerr << "[DBG] Child " << finished_pid << " was terminated by signal " << WTERMSIG(status) << "\n";
+            }
+        }
+    }
+}
+
 int main() {
     ListDatabase* db = new ListDatabase();
 
@@ -49,6 +117,10 @@ int main() {
         return 1;
     }
 
+    // Create background thread for saving data
+    std::thread save_thread(save_loop, db);
+
+
     bool running = true;
     std::println("Listenting for connections on port :{}", PORT);
     while (running) {
@@ -60,5 +132,6 @@ int main() {
         std::thread client_thread(handle_client, client_fd.value(), db);
         client_thread.detach();
     }
+    save_thread.join();
     return 0;
 }

@@ -75,3 +75,8 @@ auto ListDatabase::update(Database& write_buffer, int64_t commit_timestamp)
 auto ListDatabase::exists(const std::string& key) -> bool {
     return (this->data.find(key) != this->data.end());
 }
+
+auto ListDatabase::get_data() const
+    -> const std::map<std::string, std::deque<std::shared_ptr<Object>>>& {
+    return this->data;
+}

@@ -24,6 +24,7 @@ class Object {
     std::optional<std::string> asString() const;
     auto get_timestamp() const -> int64_t;
     auto set_timestamp(int64_t timestamp) -> void;
+    auto encode() const -> std::string;
 
     static auto get_current_time() -> int64_t;
 };

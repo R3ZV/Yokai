@@ -35,3 +35,15 @@ auto Object::get_current_time() -> int64_t {
                std::chrono::high_resolution_clock::now().time_since_epoch())
         .count();
 }
+
+auto Object::encode() const -> std::string {
+    std::ostringstream oss;
+    if (this->asInt().has_value()) {
+        oss << "INT" << "\t" << std::to_string(this->asInt().value());
+        return oss.str();
+    }
+    else {
+        oss << "STRING" << "\t" << this->asString().value();
+        return oss.str();
+    }
+}

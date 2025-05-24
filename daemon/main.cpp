@@ -43,8 +43,8 @@ void handle_client(int client, ListDatabase* db) {
 
     close(client);
 }
-
-std::string generate_timestamped_filename() {
+    
+std::string save_to_debug_file(ListDatabase* db) {
     auto now = std::chrono::system_clock::now();
     std::time_t time_now = std::chrono::system_clock::to_time_t(now);
 
@@ -53,19 +53,16 @@ std::string generate_timestamped_filename() {
     oss << std::put_time(std::localtime(&time_now), "%Y%m%d-%H%M%S");
     oss << ".txt";
 
-    return oss.str();
-}
-
-std::string save_to_debug_file(const std::map<std::string, std::deque<std::shared_ptr<Object>>> & db) {
-    std::string filename = generate_timestamped_filename();
+    std::string filename = oss.str();
 
     std::ofstream out(filename);
     if (!out) {
         throw std::runtime_error("Could not open file for writing: " + filename);
     }
 
-    for (const auto& [key, value] : db) {
-        out << key << '\t' << value.size() << '\n';
+    for (const auto& [key, value] : db->get_data()) {
+        // Only save the latest object for each key
+        out << key << '\t' << db->select_latest(key, Object::get_current_time()).value().get()->encode() << "\n";
     }
 
     out.close();
@@ -80,12 +77,12 @@ void save_loop(ListDatabase* db) {
         pid_t pid = fork();
         if (pid == 0) {
             try {
-                std::string filename = save_to_debug_file(db->get_data());
+                std::string filename = save_to_debug_file(db);
                 std::cout << "[DBG] Saved data to " << filename << std::endl;
             } catch (const std::exception& e) {
                 std::cerr << "[DBG] Save failed: " << e.what() << std::endl;
             }
-            _exit(0);
+            exit(0);
         } else if (pid < 0) {
             std::cerr << "Failed to fork process for saving." << std::endl;
         }
@@ -115,6 +112,12 @@ int main() {
     if (err != std::nullopt) {
         std::cerr << err.value().message() << std::endl;
         return 1;
+    }
+
+    // Load data
+    auto res = db->load_from_file();
+    if (!res.has_value()) {
+        std::cerr << res.error();
     }
 
     // Create background thread for saving data

@@ -6,6 +6,7 @@
 #include <mutex>
 #include <string>
 #include <system_error>
+#include <fstream>
 
 #include "database.h"
 #include "object.h"
@@ -24,4 +25,5 @@ class ListDatabase {
     auto exists(const std::string& key) -> bool;
     auto get_data() const
         -> const std::map<std::string, std::deque<std::shared_ptr<Object>>>&;
+    auto load_from_file() -> std::expected<void, std::string>;
 };

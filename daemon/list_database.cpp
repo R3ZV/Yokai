@@ -80,3 +80,43 @@ auto ListDatabase::get_data() const
     -> const std::map<std::string, std::deque<std::shared_ptr<Object>>>& {
     return this->data;
 }
+
+auto ListDatabase::load_from_file() -> std::expected<void, std::string> {
+    const std::string filename = "saves/dump.txt";
+
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        return std::unexpected("[ERR] Failed to open file: " + filename);
+    }
+
+    std::string line;
+    int line_num = 0;
+    while (std::getline(file, line)) {
+        ++line_num;
+
+        std::istringstream iss(line);
+        std::string key, type, value;
+
+        if (!std::getline(iss, key, '\t') ||
+            !std::getline(iss, type, '\t') ||
+            !std::getline(iss, value)) {
+            return std::unexpected("[ERR] Malformed line " + std::to_string(line_num) + ": " + line);
+        }
+
+        try {
+            if (type == "INT") {
+                data.emplace(key, std::deque<std::shared_ptr<Object>> { std::make_shared<Object>(stoi(value)) } );
+            } 
+            else if (type == "STRING") {
+                data.emplace(key, std::deque<std::shared_ptr<Object>> { std::make_shared<Object>(value) } );
+            } 
+            else {
+                return std::unexpected("[ERR] Unknown type '" + type + "' on line " + std::to_string(line_num));
+            }
+        } catch (const std::exception& e) {
+            return std::unexpected("[ERR] Failed to parse value on line " + std::to_string(line_num) + ": " + e.what());
+        }
+    }
+
+    return {};
+}

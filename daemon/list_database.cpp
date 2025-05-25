@@ -86,7 +86,8 @@ auto ListDatabase::load_from_file() -> std::expected<void, std::string> {
 
     std::ifstream file(filename);
     if (!file.is_open()) {
-        return std::unexpected("[ERR] Failed to open file: " + filename);
+        std::println("[DBG] Dump file not found, starting with empty dataset");
+        return {};
     }
 
     std::string line;
@@ -97,24 +98,26 @@ auto ListDatabase::load_from_file() -> std::expected<void, std::string> {
         std::istringstream iss(line);
         std::string key, type, value;
 
-        if (!std::getline(iss, key, '\t') ||
-            !std::getline(iss, type, '\t') ||
+        if (!std::getline(iss, key, '\t') || !std::getline(iss, type, '\t') ||
             !std::getline(iss, value)) {
-            return std::unexpected("[ERR] Malformed line " + std::to_string(line_num) + ": " + line);
+            return std::unexpected("[ERR] Malformed line " +
+                                   std::to_string(line_num) + ": " + line);
         }
 
         try {
             if (type == "INT") {
-                data.emplace(key, std::deque<std::shared_ptr<Object>> { std::make_shared<Object>(stoi(value)) } );
-            } 
-            else if (type == "STRING") {
-                data.emplace(key, std::deque<std::shared_ptr<Object>> { std::make_shared<Object>(value) } );
-            } 
-            else {
-                return std::unexpected("[ERR] Unknown type '" + type + "' on line " + std::to_string(line_num));
+                data.emplace(key, std::deque<std::shared_ptr<Object>>{
+                                      std::make_shared<Object>(stoi(value))});
+            } else if (type == "STRING") {
+                data.emplace(key, std::deque<std::shared_ptr<Object>>{
+                                      std::make_shared<Object>(value)});
+            } else {
+                return std::unexpected("[ERR] Unknown type '" + type +
+                                       "' on line " + std::to_string(line_num));
             }
         } catch (const std::exception& e) {
-            return std::unexpected("[ERR] Failed to parse value on line " + std::to_string(line_num) + ": " + e.what());
+            return std::unexpected("[ERR] Failed to parse value on line " +
+                                   std::to_string(line_num) + ": " + e.what());
         }
     }
 

@@ -41,8 +41,7 @@ auto Object::encode() const -> std::string {
     if (this->asInt().has_value()) {
         oss << "INT" << "\t" << std::to_string(this->asInt().value());
         return oss.str();
-    }
-    else {
+    } else {
         oss << "STRING" << "\t" << this->asString().value();
         return oss.str();
     }

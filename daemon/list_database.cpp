@@ -82,6 +82,10 @@ auto ListDatabase::get_data() const
 }
 
 auto ListDatabase::load_from_file() -> std::expected<void, std::string> {
+    // We grab the lock because method can be called by command ROLLBACK as well
+    // So we treat it like a commit
+    std::unique_lock<std::mutex> lock(this->commit_lock);
+
     const std::string filename = "saves/dump.txt";
 
     std::ifstream file(filename);
@@ -89,6 +93,9 @@ auto ListDatabase::load_from_file() -> std::expected<void, std::string> {
         std::println("[DBG] Dump file not found, starting with empty dataset");
         return {};
     }
+
+    // Clear the map in case the function is called with ROLLBACK
+    data.clear();
 
     std::string line;
     int line_num = 0;

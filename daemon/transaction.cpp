@@ -131,6 +131,11 @@ auto Transaction::handle_command(const std::string& buff) -> void {
                 this->ongoing = false;
             } break;
 
+            case CommandType::ROLLBACK: {
+                this->rollback = true;
+                this->ongoing = false;
+            }
+
             case CommandType::INVALID: {
                 // TODO: find a way to send this error
                 // to the user, maybe handle_command should now
@@ -157,7 +162,13 @@ auto Transaction::commit() -> void {
 
     // Update the global dict with the local changes
     int64_t commit_time = Object::get_current_time();
-    global_store->update(*write_buffer, commit_time);
+    if (this->rollback == true) {
+        std::println("[DBG] Rolling back...");
+        global_store->load_from_file();
+        this->rollback = false;
+    } else {
+        global_store->update(*write_buffer, commit_time);
+    }
     commands.clear();
     local_store->clear();
     write_buffer->clear();

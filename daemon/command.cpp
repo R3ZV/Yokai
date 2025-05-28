@@ -55,6 +55,8 @@ auto Command::parse(const std::string& blob) -> std::vector<Command> {
                 commands.emplace_back(Command(CommandType::EXEC, {}));
             } else if (*it == "MULTI") {
                 commands.emplace_back(Command(CommandType::MULTI, {}));
+            } else if (*it == "ROLLBACK") {
+                commands.emplace_back(Command(CommandType::ROLLBACK, {}));
             } else {
                 commands.emplace_back(Command(CommandType::INVALID, {}));
             }

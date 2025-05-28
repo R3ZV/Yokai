@@ -12,6 +12,7 @@ class Transaction {
     Database* write_buffer;
     std::vector<Command> commands;
     bool ongoing = false;
+    bool rollback = false;
     int64_t timestamp;
 
    public:

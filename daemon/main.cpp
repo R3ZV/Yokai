@@ -3,11 +3,12 @@
 #include <print>
 #include <thread>
 #include <vector>
-
+#include<functional>
 #include "../common/include/connection.h"
 #include "include/database.h"
 #include "include/list_database.h"
 #include "include/transaction.h"
+#include "include/balancer.h"
 
 void handle_client(int client, ListDatabase* db) {
     constexpr int BUFF_SIZE = 1024;
@@ -38,7 +39,7 @@ void handle_client(int client, ListDatabase* db) {
 
 int main() {
     ListDatabase* db = new ListDatabase();
-
+    Balancer* balance = new Balancer();
     constexpr int32_t PORT = 8080;
     constexpr int32_t NUM_CLIENTS = 3;
 
@@ -56,9 +57,8 @@ int main() {
         if (!client_fd.has_value()) {
             std::cerr << client_fd.error().message() << std::endl;
         }
-
-        std::thread client_thread(handle_client, client_fd.value(), db);
-        client_thread.detach();
-    }
+        balance->queue_job(std::bind(&handle_client, client_fd.value(), db));
+    }//otherwise, it sends a value
+    balance->stop();
     return 0;
 }

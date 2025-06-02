@@ -10,6 +10,8 @@ Object::Object(int integer_data, time_t timestamp)
 Object::Object(const std::string &string_data, time_t timestamp)
     : data(string_data), timestamp(timestamp) {}
 
+Object::Object(const json& json_data, time_t timestamp)
+    : data(json_data), timestamp(timestamp) {}
 auto Object::asInt() const -> std::optional<int> {
     if (auto ptr = std::get_if<int>(&data)) {
         return *ptr;
@@ -19,6 +21,13 @@ auto Object::asInt() const -> std::optional<int> {
 
 auto Object::asString() const -> std::optional<std::string> {
     if (auto ptr = std::get_if<std::string>(&data)) {
+        return *ptr;
+    }
+    return std::nullopt;
+}
+
+auto Object::asJson() const -> std::optional<json> {
+    if (auto ptr = std::get_if<json>(&data)) {
         return *ptr;
     }
     return std::nullopt;

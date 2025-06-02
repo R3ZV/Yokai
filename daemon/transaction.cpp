@@ -32,8 +32,8 @@ auto Transaction::handle_command(const std::string& buff) -> void {
         switch (commands[0].get_type()) {
             case CommandType::SET: {
                 auto args = commands[0].get_args();
-                std::println("[DBG]: Setting key {} to value {}", args[0],
-                             args[1]);
+                std::println(std::cerr, "[DBG]: Setting key {} to value {}",
+                             args[0], args[1]);
 
                 auto new_value =
                     std::make_shared<Object>(args[1], this->timestamp);
@@ -52,7 +52,7 @@ auto Transaction::handle_command(const std::string& buff) -> void {
                     // Delete the key
                     auto res = this->local_store->delete_key(args[0]);
                     if (!res.has_value()) {
-                        std::cerr << res.error().message() << std::endl;
+                        std::println(std::cerr, "{}", res.error().message());
                         return;
                     }
                 }
@@ -60,7 +60,7 @@ auto Transaction::handle_command(const std::string& buff) -> void {
                     // Delete the key
                     auto res = this->write_buffer->delete_key(args[0]);
                     if (!res.has_value()) {
-                        std::cerr << res.error().message() << std::endl;
+                        std::println(std::cerr, "{}", res.error().message());
                         return;
                     }
                 }
@@ -75,7 +75,7 @@ auto Transaction::handle_command(const std::string& buff) -> void {
                         args[0],
                         std::make_shared<Object>("DELETED", this->timestamp));
                     if (!res.has_value()) {
-                        std::cerr << res.error().message() << std::endl;
+                        std::println(std::cerr, "{}", res.error().message());
                         return;
                     }
                 }
@@ -92,12 +92,11 @@ auto Transaction::handle_command(const std::string& buff) -> void {
                                                             this->timestamp);
 
                     if (!res.has_value()) {
-                        std::cerr << res.error().message() << std::endl;
+                        std::println(std::cerr, "{}", res.error().message());
                         return;
                     }
 
                     // Add the object to the local store
-                    std::println("Debug");
                     const auto& value = res.value();
                     this->local_store->insert_key(args[0], value);
                 }
@@ -107,7 +106,8 @@ auto Transaction::handle_command(const std::string& buff) -> void {
                 auto aux = value.get()->asString();
                 if (aux.has_value()) {
                     auto printable_value = aux.value();
-                    println("Key: {}, Value: {}", args[0], printable_value);
+                    println(std::cerr, "Key: {}, Value: {}", args[0],
+                            printable_value);
                 }
             } break;
 
@@ -154,16 +154,16 @@ auto Transaction::handle_command(const std::string& buff) -> void {
 
 auto Transaction::commit() -> void {
     if (!commands.empty()) {
-        std::println("[DBG] Commands exectued: ");
+        std::println(std::cerr, "[DBG] Commands exectued: ");
         for (Command command : this->commands) {
-            std::println("[T]: {} ", command);
+            std::println(std::cerr, "[T]: {} ", command);
         }
     }
 
     // Update the global dict with the local changes
     int64_t commit_time = Object::get_current_time();
     if (this->rollback == true) {
-        std::println("[DBG] Rolling back...");
+        std::println(std::cerr, "[DBG] Rolling back...");
         global_store->load_from_file();
         this->rollback = false;
     } else {

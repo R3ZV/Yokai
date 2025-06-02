@@ -1,5 +1,6 @@
 #include "include/list_database.h"
 
+#include <iostream>
 #include <print>
 
 auto ListDatabase::select_latest(const std::string& key,
@@ -24,17 +25,17 @@ auto ListDatabase::select_latest(const std::string& key,
 
 auto ListDatabase::show_objects() -> void {
     if (this->data.empty()) {
-        std::println("\nNothing to show!");
+        std::println(std::cerr, "\nNothing to show!");
         return;
     }
-    std::println("\nShowing data:");
+    std::println(std::cerr, "\nShowing data:");
     for (const auto& it : this->data) {
-        println("Key: {}", it.first);
+        println(std::cerr, "Key: {}", it.first);
         for (const auto& value : it.second) {
             auto aux = value.get()->asString();
             if (aux.has_value()) {
                 auto printable_value = aux.value();
-                println("{} - {}", printable_value,
+                println(std::cerr, "{} - {}", printable_value,
                         value.get()->get_timestamp());
             }
         }
@@ -90,7 +91,8 @@ auto ListDatabase::load_from_file() -> std::expected<void, std::string> {
 
     std::ifstream file(filename);
     if (!file.is_open()) {
-        std::println("[DBG] Dump file not found, starting with empty dataset");
+        std::println(std::cerr,
+                     "[DBG] Dump file not found, starting with empty dataset");
         return {};
     }
 

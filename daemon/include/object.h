@@ -9,8 +9,6 @@
 
 class Object {
     std::variant<int, std::string> data;
-    // TODO: add support for fancier types, such as JSON
-    // for now, we support ints and strings as values
     int64_t timestamp;
 
    public:

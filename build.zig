@@ -66,6 +66,7 @@ const daemon_files = .{
     "daemon/transaction.cpp",
     "daemon/list_database.cpp",
     "daemon/object.cpp",
+    "daemon/balancer.cpp",
     "common/connection.cpp",
 };
 

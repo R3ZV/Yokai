@@ -5,11 +5,10 @@
 #include <optional>
 #include <string>
 #include <variant>
-#include "../../lib/json.hpp"
+#include<set>
 
-using json = nlohmann::json;
 class Object {
-    std::variant<int, std::string, json> data;
+    std::variant<int, std::string, std::set<int> > data;
     // TODO: add support for fancier types, such as JSON
     // for now, we support ints and strings as values
     time_t timestamp;
@@ -18,13 +17,13 @@ class Object {
     Object() = default;
     Object(int integer_data, time_t timestamp = time(nullptr));
     Object(const std::string& str_data, time_t timestamp = time(nullptr));
-    Object(const json& json_data, time_t timestamp=time(nullptr));
+    Object(const std::set<int>& set_data, time_t timestamp=time(nullptr));
     Object(const Object& obj) = default;
     Object& operator=(const Object& obj) = default;
 
     std::optional<int> asInt() const;
     std::optional<std::string> asString() const;
-    std::optional<json> asJson() const;
+    std::optional<std::set<int> > asSet() const;
     auto get_timestamp() const -> time_t;
     auto set_timestamp(time_t timestamp) -> void;
 };

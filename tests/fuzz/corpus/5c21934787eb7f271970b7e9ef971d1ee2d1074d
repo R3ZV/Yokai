@@ -1,0 +1,7 @@
+MULTI
+SET rzv 234
+SEQ bike france
+SELECT bike
+ROLLBACK
+DEL rzv
+EXEC

@@ -103,10 +103,10 @@ fn build_daemon(
 }
 
 const test_files = .{
-    "tests/main.cpp",
-    "tests/test_database.cpp",
-    "tests/test_transaction.cpp",
-    "tests/test_command.cpp",
+    "tests/unit/main.cpp",
+    "tests/unit/test_database.cpp",
+    "tests/unit/test_transaction.cpp",
+    "tests/unit/test_command.cpp",
 
     "daemon/command.cpp",
     "daemon/database.cpp",

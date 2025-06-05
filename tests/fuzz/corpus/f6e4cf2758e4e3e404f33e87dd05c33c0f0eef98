@@ -1,0 +1,5 @@
+MULTI
+SET rzbike
+ROLLBACK
+DEL zv
+EXEC

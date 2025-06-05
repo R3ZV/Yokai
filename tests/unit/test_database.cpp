@@ -1,5 +1,5 @@
-#include "../daemon/include/database.h"
-#include "../lib/doctest.h"
+#include "../../daemon/include/database.h"
+#include "../../lib/doctest.h"
 
 TEST_CASE("Testing Database insert_key") {
     Database* database = new Database();

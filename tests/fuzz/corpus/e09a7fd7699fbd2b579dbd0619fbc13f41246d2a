@@ -1,0 +1,8 @@
+MUL
+SET rzv 234
+SEQ 
+cSELECT bike
+ROLLBACK
+D$L rzACK
+DEL rzv
+EXEC

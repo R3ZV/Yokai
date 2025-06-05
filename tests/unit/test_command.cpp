@@ -1,5 +1,5 @@
-#include "../daemon/include/command.h"
-#include "../lib/doctest.h"
+#include "../../daemon/include/command.h"
+#include "../../lib/doctest.h"
 
 TEST_CASE("Test non-transactions") {
     std::vector<std::string> blobs = {

@@ -1,7 +1,7 @@
-#include "../daemon/include/database.h"
-#include "../daemon/include/list_database.h"
-#include "../daemon/include/transaction.h"
-#include "../lib/doctest.h"
+#include "../../daemon/include/database.h"
+#include "../../daemon/include/list_database.h"
+#include "../../daemon/include/transaction.h"
+#include "../../lib/doctest.h"
 
 TEST_CASE("Testing multiple transactions") {
     ListDatabase* global_database = new ListDatabase();

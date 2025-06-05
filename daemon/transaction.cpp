@@ -32,33 +32,36 @@ auto Transaction::handle_command(const std::string& buff) -> void {
         switch (commands[0].get_type()) {
             case CommandType::SET: {
                 auto args = commands[0].get_args();
+                std::string key = args[0];
+                auto val = args[1];
                 std::println(std::cerr, "[DBG]: Setting key {} to value {}",
-                             args[0], args[1]);
+                             key, val);
 
-                auto new_value =
-                    std::make_shared<Object>(args[1], this->timestamp);
+                auto new_value = std::make_shared<Object>(ObjectType::STRING,
+                                                          val, this->timestamp);
 
                 // This is a write, so we change the value in the
                 // write_buffer
-                this->write_buffer->insert_key(args[0], new_value);
+                this->write_buffer->insert_key(key, new_value);
 
                 // And also in the local store
-                this->local_store->insert_key(args[0], new_value);
+                this->local_store->insert_key(key, new_value);
             } break;
 
             case CommandType::DEL: {
                 auto args = commands[0].get_args();
-                if (this->local_store->exists(args[0])) {
+                std::string key = args[0];
+                if (this->local_store->exists(key)) {
                     // Delete the key
-                    auto res = this->local_store->delete_key(args[0]);
+                    auto res = this->local_store->delete_key(key);
                     if (!res.has_value()) {
                         std::println(std::cerr, "{}", res.error().message());
                         return;
                     }
                 }
-                if (this->write_buffer->exists(args[0])) {
+                if (this->write_buffer->exists(key)) {
                     // Delete the key
-                    auto res = this->write_buffer->delete_key(args[0]);
+                    auto res = this->write_buffer->delete_key(key);
                     if (!res.has_value()) {
                         std::println(std::cerr, "{}", res.error().message());
                         return;
@@ -68,12 +71,13 @@ auto Transaction::handle_command(const std::string& buff) -> void {
                 // Look for the key in global store
                 // We look for an object that is visible from inside the
                 // current transaction (not a later one)
-                if (this->global_store->select_latest(args[0], this->timestamp)
+                if (this->global_store->select_latest(key, this->timestamp)
                         .has_value()) {
                     // Mark the key as deleted
                     auto res = this->write_buffer->insert_key(
-                        args[0],
-                        std::make_shared<Object>("DELETED", this->timestamp));
+                        key,
+                        std::make_shared<Object>(ObjectType::STRING, "DELETED",
+                                                 this->timestamp));
                     if (!res.has_value()) {
                         std::println(std::cerr, "{}", res.error().message());
                         return;
@@ -83,13 +87,15 @@ auto Transaction::handle_command(const std::string& buff) -> void {
 
             case CommandType::SELECT: {
                 auto args = commands[0].get_args();
+                std::string key = args[0];
+
                 // First look for the key in the local store
-                auto res = this->local_store->select(args[0]);
+                auto res = this->local_store->select(key);
 
                 if (!res.has_value()) {
                     // Then look in the global store
-                    res = this->global_store->select_latest(args[0],
-                                                            this->timestamp);
+                    res =
+                        this->global_store->select_latest(key, this->timestamp);
 
                     if (!res.has_value()) {
                         std::println(std::cerr, "{}", res.error().message());
@@ -98,7 +104,7 @@ auto Transaction::handle_command(const std::string& buff) -> void {
 
                     // Add the object to the local store
                     const auto& value = res.value();
-                    this->local_store->insert_key(args[0], value);
+                    this->local_store->insert_key(key, value);
                 }
 
                 // Print the key value pair
@@ -106,7 +112,7 @@ auto Transaction::handle_command(const std::string& buff) -> void {
                 auto aux = value.get()->asString();
                 if (aux.has_value()) {
                     auto printable_value = aux.value();
-                    println(std::cerr, "Key: {}, Value: {}", args[0],
+                    println(std::cerr, "Key: {}, Value: {}", key,
                             printable_value);
                 }
             } break;

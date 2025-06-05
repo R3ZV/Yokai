@@ -94,7 +94,7 @@ auto save_loop(ListDatabase* db) -> void {
         while ((finished_pid = waitpid(-1, &status, WNOHANG)) > 0) {
             if (WIFEXITED(status)) {
                 int exit_code = WEXITSTATUS(status);
-                std::println(std::cerr, "[DBG] Child {} exited with code",
+                std::println(std::cerr, "[DBG] Child {} exited with code {}",
                              finished_pid, exit_code);
             } else if (WIFSIGNALED(status)) {
                 std::println(std::cerr,

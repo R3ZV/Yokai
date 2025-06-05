@@ -3,6 +3,8 @@
 #include <iostream>
 #include <print>
 
+#include "include/object.h"
+
 auto ListDatabase::select_latest(const std::string& key,
                                  int64_t transaction_timestamp)
     -> std::expected<std::shared_ptr<Object>, std::error_code> {
@@ -114,12 +116,10 @@ auto ListDatabase::load_from_file() -> std::expected<void, std::string> {
         }
 
         try {
-            if (type == "INT") {
+            if (type == "STRING") {
                 data.emplace(key, std::deque<std::shared_ptr<Object>>{
-                                      std::make_shared<Object>(stoi(value))});
-            } else if (type == "STRING") {
-                data.emplace(key, std::deque<std::shared_ptr<Object>>{
-                                      std::make_shared<Object>(value)});
+                                      std::make_shared<Object>(
+                                          ObjectType::STRING, value)});
             } else {
                 return std::unexpected("[ERR] Unknown type '" + type +
                                        "' on line " + std::to_string(line_num));

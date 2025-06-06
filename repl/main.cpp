@@ -8,7 +8,7 @@ int main() {
     Connection conn = Connection(PORT);
     std::optional<std::error_code> err = conn.init_client("127.0.0.1");
     if (err != std::nullopt) {
-        std::cerr << err.value().message() << std::endl;
+        std::println(std::cerr, "{}", err.value().message());
         return 1;
     }
 
@@ -18,23 +18,23 @@ int main() {
     bool running = true;
     while (running) {
         if (failed_commands == ALLOWED_FAILS) {
-            std::cerr << "[ERROR]: Connection to the server is unreliable!"
-                      << std::endl;
-            std::cerr << "Terminating session..." << std::endl;
+            std::println(std::cerr,
+                         "[ERROR]: Connection to the server is unreliable!");
+            std::println("Terminating session...");
             running = false;
             return 1;
         }
         std::string command;
         std::print("> ");
         std::getline(std::cin, command);
-        std::cerr << "[DBG]: Command send = '" << command << "'" << std::endl;
+        std::println(std::cerr, "[DBG]: Command send = '{}'", command);
 
         auto res = conn.send_msg(command);
         if (res != std::nullopt) {
             failed_commands++;
-            std::cerr << res.value().message() << std::endl;
+            std::println(std::cerr, "{}", res.value().message());
         } else {
-            std::cerr << "[INFO]: Message sent!" << std::endl;
+            std::println("Command sent!");
             failed_commands = 0;
         }
     }

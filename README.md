@@ -33,6 +33,9 @@ zig build run-daemon
 
 # Build and run the tests
 zig build test
+
+# Format code
+zig build format
 ```
 
 If you add a new `.cpp` file to the project make sure you add it to the

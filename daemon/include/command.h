@@ -14,6 +14,8 @@
 /// SHOW WRITE  (shows write buffer)
 /// MULTI  (begin multiple command transaction)
 /// EXEC  (execute multiple command transaction)
+/// ROLLBACK (rolls global dict back from dump.txt, nullifies any other commands
+/// in the same transaction)
 enum CommandType {
     SET,
     DEL,
@@ -23,6 +25,7 @@ enum CommandType {
     SHOW_WRITE,
     MULTI,
     EXEC,
+    ROLLBACK,
     INVALID,
 };
 
@@ -73,6 +76,9 @@ struct formatter<Command> {
                 break;
             case EXEC:
                 type_str = "EXEC";
+                break;
+            case ROLLBACK:
+                type_str = "ROLLBACK";
                 break;
             case INVALID:
                 type_str = "INVALID";

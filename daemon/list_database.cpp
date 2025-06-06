@@ -1,6 +1,9 @@
 #include "include/list_database.h"
 
+#include <iostream>
 #include <print>
+
+#include "include/object.h"
 
 auto ListDatabase::select_latest(const std::string& key,
                                  int64_t transaction_timestamp)
@@ -24,17 +27,17 @@ auto ListDatabase::select_latest(const std::string& key,
 
 auto ListDatabase::show_objects() -> void {
     if (this->data.empty()) {
-        std::println("\nNothing to show!");
+        std::println(std::cerr, "\nNothing to show!");
         return;
     }
-    std::println("\nShowing data:");
+    std::println(std::cerr, "\nShowing data:");
     for (const auto& it : this->data) {
-        println("Key: {}", it.first);
+        println(std::cerr, "Key: {}", it.first);
         for (const auto& value : it.second) {
             auto aux = value.get()->asString();
             if (aux.has_value()) {
                 auto printable_value = aux.value();
-                println("{} - {}", printable_value,
+                println(std::cerr, "{} - {}", printable_value,
                         value.get()->get_timestamp());
             }
         }
@@ -74,4 +77,58 @@ auto ListDatabase::update(Database& write_buffer, int64_t commit_timestamp)
 
 auto ListDatabase::exists(const std::string& key) -> bool {
     return (this->data.find(key) != this->data.end());
+}
+
+auto ListDatabase::get_data() const
+    -> const std::map<std::string, std::deque<std::shared_ptr<Object>>>& {
+    return this->data;
+}
+
+auto ListDatabase::load_from_file() -> std::expected<void, std::string> {
+    // We grab the lock because method can be called by command ROLLBACK as well
+    // So we treat it like a commit
+    std::unique_lock<std::mutex> lock(this->commit_lock);
+
+    const std::string filename = "saves/dump.txt";
+
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        std::println(std::cerr,
+                     "[DBG] Dump file not found, starting with empty dataset");
+        return {};
+    }
+
+    // Clear the map in case the function is called with ROLLBACK
+    data.clear();
+
+    std::string line;
+    int line_num = 0;
+    while (std::getline(file, line)) {
+        ++line_num;
+
+        std::istringstream iss(line);
+        std::string key, type, value;
+
+        if (!std::getline(iss, key, '\t') || !std::getline(iss, type, '\t') ||
+            !std::getline(iss, value)) {
+            return std::unexpected("[ERR] Malformed line " +
+                                   std::to_string(line_num) + ": " + line);
+        }
+
+        try {
+            if (type == "STRING") {
+                data.emplace(key, std::deque<std::shared_ptr<Object>>{
+                                      std::make_shared<Object>(
+                                          ObjectType::STRING, value)});
+            } else {
+                return std::unexpected("[ERR] Unknown type '" + type +
+                                       "' on line " + std::to_string(line_num));
+            }
+        } catch (const std::exception& e) {
+            return std::unexpected("[ERR] Failed to parse value on line " +
+                                   std::to_string(line_num) + ": " + e.what());
+        }
+    }
+
+    return {};
 }

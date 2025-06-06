@@ -1,5 +1,6 @@
 #include "include/database.h"
 
+#include <iostream>
 #include <map>
 #include <print>
 #include <string>
@@ -49,15 +50,15 @@ auto Database::select(const std::string& key)
 
 auto Database::show_objects() -> void {
     if (this->data.empty()) {
-        std::println("\nNothing to show!");
+        std::println(std::cerr, "\nNothing to show!");
         return;
     }
-    std::println("\nShowing data:");
+    std::println(std::cerr, "\nShowing data:");
     for (const auto& it : this->data) {
         auto aux = it.second.get()->asString();
         if (aux.has_value()) {
             auto printable_value = aux.value();
-            println("Key: {}, Value: {}, Timestamp: {}", it.first,
+            println(std::cerr, "Key: {}, Value: {}, Timestamp: {}", it.first,
                     printable_value, it.second.get()->get_timestamp());
         }
     }

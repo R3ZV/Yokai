@@ -1,0 +1,54 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger on version tags like v1.0.0
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+
+    strategy:
+      matrix:
+        target:
+          - x86_64-linux
+          - aarch64-linux
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        pacman -Syu --noconfirm
+        pacman -S --noconfirm wget tar git clang git-cliff
+
+    - name: Download and setup Zig 0.14.0
+      run: |
+        wget https://ziglang.org/download/0.14.0/zig-linux-x86_64-0.14.0.tar.xz
+        tar -xf zig-linux-x86_64-0.14.0.tar.xz
+        mv zig-linux-x86_64-0.14.0 zig
+        echo "$(pwd)/zig" >> $GITHUB_PATH
+
+    - name: Release notes
+      run:  git cliff -o CHANGELOG.md
+    - name: Build for ${{ matrix.target }}
+      run: |
+        zig/zig build -Dtarget=${{ matrix.target }} -Doptimize=ReleaseSafe
+
+    - name: Package binary
+      run: |
+        mkdir -p dist
+        cp zig-out/bin/* dist/
+        tar -czvf yokai-${{ matrix.target }}.tar.gz -C dist .
+
+    - name: Upload to Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: yokai-${{ matrix.target }}.tar.gz
+        body_path: CHANGELOG.md
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

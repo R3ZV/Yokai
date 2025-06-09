@@ -1,5 +1,7 @@
 #include <iostream>
 #include <print>
+#include <chrono>
+#include <thread>
 
 #include "../common/include/connection.h"
 
@@ -14,6 +16,7 @@ int main() {
 
     int failed_commands = 0;
     constexpr int ALLOWED_FAILS = 5;
+    constexpr auto TIMEOUT_DURATION = std::chrono::minutes(10);
 
     bool running = true;
     while (running) {
@@ -21,11 +24,23 @@ int main() {
             std::println(std::cerr,
                          "[ERROR]: Connection to the server is unreliable!");
             std::println("Terminating session...");
-            running = false;
             return 1;
         }
+
         std::string command;
         std::print("> ");
+        auto start = std::chrono::steady_clock::now();
+
+        while (!std::cin.rdbuf()->in_avail()) {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+            auto now = std::chrono::steady_clock::now();
+            if (now - start > TIMEOUT_DURATION) {
+                std::println("Connection timed out due to inactivity");
+                std::println("Terminating session...");
+                return 0;
+            }
+        }
+
         std::getline(std::cin, command);
         std::println(std::cerr, "[DBG]: Command send = '{}'", command);
 
@@ -38,5 +53,6 @@ int main() {
             failed_commands = 0;
         }
     }
+
     return 0;
 }

@@ -1,2 +1,4 @@
+29 STRING savin-o
+3 STRING "merc"
 radu STRING 30
 rzv STRING abracadabra

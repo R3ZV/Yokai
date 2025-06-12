@@ -4,7 +4,7 @@
 #include <map>
 #include <print>
 #include <string>
-
+#include <optional>
 /**
  * This function acts as both an insert and an upload
  * since if you already have the key in the database
@@ -24,7 +24,25 @@ auto Database::insert_key(const std::string& key, std::shared_ptr<Object> value)
     }
     return {};
 }
-
+auto Database::add_key_set(const std::string& key, std::shared_ptr<Object> value) 
+    -> std::expected<void, std::error_code>  {
+    try{
+        bool has_set=(data[key]->asSet())!=std::nullopt;
+        if(data.count(key) == 0 || (!has_set)){ //if the key is nonexistent or has an allotted string
+            data[key]=std::make_shared<Object>(ObjectType::HASH_TABLE);
+        }
+        //if we get here, there has to be a set
+        std::optional<std::string> string_opt=value->asString();
+        if(string_opt.has_value()){
+            std::string string_value=string_opt.value();
+            data[key]->asSet()->insert(string_value); 
+        }
+    }
+    catch(...){
+        return std::unexpected(std::error_code(errno, std::generic_category()));
+    }
+    return {};
+}
 auto Database::delete_key(const std::string& key)
     -> std::expected<void, std::error_code> {
     auto it = data.find(key);

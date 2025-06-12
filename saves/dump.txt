@@ -1,2 +1,2 @@
-	STRING	30
-	STRING	30
+radu STRING 30
+rzv STRING abracadabra

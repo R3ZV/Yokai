@@ -56,7 +56,7 @@ auto try_backup(ListDatabase* db) -> std::expected<void, std::string> {
             return std::unexpected("Failed to get latest object for key: " +
                                    key);
         }
-        std::println(out, "\t{}", latest.value()->encode());
+        std::println(out, "{} {}", key, latest.value()->encode());
     }
 
     out.close();

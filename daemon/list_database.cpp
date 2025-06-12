@@ -1,5 +1,6 @@
 #include "include/list_database.h"
 
+#include <cassert>
 #include <iostream>
 #include <print>
 
@@ -108,11 +109,11 @@ auto ListDatabase::load_from_file() -> std::expected<void, std::string> {
 
         std::istringstream iss(line);
         std::string key, type, value;
-
-        if (!std::getline(iss, key, '\t') || !std::getline(iss, type, '\t') ||
-            !std::getline(iss, value)) {
-            return std::unexpected("[ERR] Malformed line " +
-                                   std::to_string(line_num) + ": " + line);
+        iss >> key >> type >> value;
+        if (key.length() == 0 && type.length() == 0 && value.length() == 0) {
+            return std::unexpected(
+                "[ERR]: Invalid database line format, one of the values is "
+                "empty!");
         }
 
         try {

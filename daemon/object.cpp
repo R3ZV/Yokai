@@ -37,7 +37,7 @@ auto Object::encode() const -> std::string {
     std::ostringstream oss;
     switch (this->type) {
         case STRING:
-            oss << "STRING" << "\t" << std::get<std::string>(this->data);
+            oss << "STRING" << " " << std::get<std::string>(this->data);
             return oss.str();
     }
 }

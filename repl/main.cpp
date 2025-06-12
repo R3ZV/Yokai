@@ -1,8 +1,6 @@
-#include <chrono>
 #include <iostream>
 #include <print>
 #include <string>
-#include <thread>
 #include <vector>
 
 #include "../common/include/connection.h"
@@ -18,7 +16,6 @@ int main() {
 
     int failed_commands = 0;
     constexpr int ALLOWED_FAILS = 5;
-    constexpr auto TIMEOUT_DURATION = std::chrono::minutes(10);
 
     bool running = true;
     bool buffering = false;
@@ -34,42 +31,21 @@ int main() {
 
         std::string command;
         std::print("{}", buffering ? "(MULTI)> " : "> ");
-        auto start = std::chrono::steady_clock::now();
-
-        while (!std::cin.rdbuf()->in_avail()) {
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-            auto now = std::chrono::steady_clock::now();
-            if (now - start > TIMEOUT_DURATION) {
-                std::println("Connection timed out due to inactivity");
-                std::println("Terminating session...");
-                return 0;
-            }
-        }
 
         std::getline(std::cin, command);
-        std::println(std::cerr, "[DBG]: Command received = '{}'", command);
 
-        if (command == "MULTI") {
-            if (buffering) {
-                std::println(
-                    std::cerr,
-                    "[WARN]: Already in MULTI mode. Ignoring duplicate MULTI.");
-                continue;
-            }
+        if (command == "MULTI" && !buffering) {
             buffering = true;
             command_buffer.clear();
+            command_buffer.push_back(command);
             std::println("Entering MULTI mode. Type EXEC to send commands.");
-            continue;
-        }
-
-        if (command == "EXEC") {
+        } else if (command == "EXEC") {
             if (!buffering) {
-                std::println(
-                    std::cerr,
-                    "[WARN]: EXEC called outside of MULTI mode. Ignoring.");
+                std::println("EXEC can only be called only in MULTI mode");
                 continue;
             }
 
+            command_buffer.push_back(command);
             std::string joined;
             for (const auto &cmd : command_buffer) {
                 joined += cmd + '\n';
@@ -86,16 +62,19 @@ int main() {
 
             buffering = false;
             command_buffer.clear();
-            continue;
-        }
-
-        auto res = conn.send_msg(command);
-        if (res != std::nullopt) {
-            failed_commands++;
-            std::println(std::cerr, "{}", res.value().message());
         } else {
-            std::println("Command sent!");
-            failed_commands = 0;
+            if (!buffering) {
+                auto res = conn.send_msg(command);
+                if (res != std::nullopt) {
+                    failed_commands++;
+                    std::println(std::cerr, "{}", res.value().message());
+                } else {
+                    std::println("Command sent!");
+                    failed_commands = 0;
+                }
+            } else {
+                command_buffer.push_back(command);
+            }
         }
     }
 

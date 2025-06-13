@@ -23,7 +23,6 @@ pub fn build(b: *std.Build) !void {
     if (check_release) {
         try build_release(b);
     } else {
-        _ = build_repl(b, target, optimize, false);
         _ = build_daemon(b, target, optimize, false);
         build_tests(b, target, optimize);
     }
@@ -37,16 +36,7 @@ fn build_release(b: *std.Build) !void {
     };
 
     for (targets) |t| {
-        const repl_exe = build_repl(b, b.resolveTargetQuery(t), .ReleaseSafe, true);
         const daemon_exe = build_daemon(b, b.resolveTargetQuery(t), .ReleaseSafe, true);
-
-        const target_output_repl = b.addInstallArtifact(repl_exe, .{
-            .dest_dir = .{
-                .override = .{
-                    .custom = try t.zigTriple(b.allocator),
-                },
-            },
-        });
 
         const target_output_daemon = b.addInstallArtifact(daemon_exe, .{
             .dest_dir = .{
@@ -56,49 +46,8 @@ fn build_release(b: *std.Build) !void {
             },
         });
 
-        b.getInstallStep().dependOn(&target_output_repl.step);
         b.getInstallStep().dependOn(&target_output_daemon.step);
     }
-}
-
-const repl_files = .{
-    "repl/main.cpp",
-    "common/connection.cpp",
-};
-
-fn build_repl(
-    b: *std.Build,
-    target: ResolvedTarget,
-    optimize: OptimizeMode,
-    release: bool,
-) *Compile {
-    const exe = b.addExecutable(.{
-        .name = "yokai-repl",
-        .target = target,
-        .optimize = optimize,
-    });
-
-    exe.linkLibCpp();
-
-    exe.addCSourceFiles(.{
-        .root = b.path("."),
-        .files = &(repl_files),
-        .flags = &CXX_FLAGS,
-    });
-
-    if (!release) {
-        b.installArtifact(exe);
-
-        const run_cmd = b.addRunArtifact(exe);
-        run_cmd.step.dependOn(b.getInstallStep());
-        if (b.args) |args| {
-            run_cmd.addArgs(args);
-        }
-
-        const run_step = b.step("run-repl", "Run the repl");
-        run_step.dependOn(&run_cmd.step);
-    }
-    return exe;
 }
 
 const daemon_files = .{
@@ -212,7 +161,7 @@ const header_files = .{
 };
 
 fn format_code(b: *std.Build, check: bool) void {
-    const files = daemon_files ++ repl_files ++ test_files ++ header_files;
+    const files = daemon_files ++ test_files ++ header_files;
 
     if (!check) {
         const flags = .{"-i"};

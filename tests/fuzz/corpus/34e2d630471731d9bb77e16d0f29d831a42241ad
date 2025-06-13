@@ -1,6 +1,0 @@
-MULTv 234
-SET bike frane
-cSELECT bike
-ROLLBACK
-D$L rzv
-EXEC

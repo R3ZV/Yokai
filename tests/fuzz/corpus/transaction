@@ -1,7 +1,0 @@
-MULTI
-SET rzv 234
-SET bike france
-SELECT bike
-ROLLBACK
-DEL rzv
-EXEC

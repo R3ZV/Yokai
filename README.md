@@ -12,6 +12,7 @@ You should have installed on you machine the following:
 - doxygen. Installation link [here](https://www.doxygen.nl/download.html).
 - Git-cliff. Installation link [here](https://git-cliff.org/docs/installation/).
 - ClangFormat
+- uv. Instalattion link [here](https://github.com/astral-sh/uv)
 
 When you are ready to commit make sure you use [conventional commit](https://www.conventionalcommits.org/en/v1.0.0/)
 specification.
@@ -28,8 +29,8 @@ zig build
 # Build and run the repl
 zig build run-repl
 
-# Build and run the daemon
-zig build run-daemon
+# Run the daemon
+uv run python3 repl/main.py
 
 # Build and run the tests
 zig build test

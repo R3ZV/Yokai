@@ -1,5 +1,7 @@
 #include "include/connection.h"
 
+#include <cstring>
+
 Connection::Connection(int32_t port) : PORT(port) {}
 
 Connection::~Connection() { close(socket_fd); }
@@ -77,6 +79,21 @@ auto Connection::send_msg(std::string msg) -> std::optional<std::error_code> {
     strcpy(buff, msg.c_str());
 
     if (send(socket_fd, buff, msg.size() + 1, 0) == -1) {
+        return std::make_optional(
+            std::error_code(errno, std::generic_category()));
+    }
+    return std::nullopt;
+}
+
+auto Connection::get_socket_fd() const -> int32_t { return socket_fd; }
+
+auto Connection::reply(int32_t client_fd, std::string msg)
+    -> std::optional<std::error_code> {
+    constexpr int BUFF_SIZE = 1024;
+    char buff[BUFF_SIZE];
+    strcpy(buff, msg.c_str());
+
+    if (send(client_fd, buff, msg.size() + 1, 0) == -1) {
         return std::make_optional(
             std::error_code(errno, std::generic_category()));
     }

@@ -36,7 +36,8 @@ auto handle_client(int client, ListDatabase* db) -> void {
         }
         std::println("Message from client: {}", buff);
 
-        user_transaction->handle_command(buff);
+        auto res = user_transaction->handle_command(buff);
+        Connection::reply(client, res);
     }
 
     close(client);

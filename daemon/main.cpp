@@ -107,7 +107,7 @@ auto save_loop(ListDatabase* db) -> void {
 }
 
 int main() {
-    ListDatabase* db = new ListDatabase();
+    ListDatabase* db = ListDatabase::get_instance();
 
     constexpr int32_t PORT = 8080;
     constexpr int32_t NUM_CLIENTS = 3;

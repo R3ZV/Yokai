@@ -20,7 +20,6 @@ def suggest_command(cmd: str) -> str | None:
     best = difflib.get_close_matches(user_cmd, VALID_COMMANDS, n=1, cutoff=0.2)
     return best[0] if best else None
 
-
 def main() -> int:
     PORT = 8080
     conn = Connection(PORT)
@@ -61,7 +60,6 @@ def main() -> int:
                     print(f"{err_msg}")
 
                 continue
-
 
             if command == "exit":
                 print("May the force be with you!")

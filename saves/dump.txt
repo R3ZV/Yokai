@@ -1,4 +1,4 @@
 ceva STRING test
 mihnea STRING "neacsu"
-radu STRING ttv
+radu STRING 30
 rzv STRING DELETED

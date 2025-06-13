@@ -12,7 +12,8 @@ ListDatabase* ListDatabase::db_instance = nullptr;
 ListDatabase::ListDatabase(){ }
 
 auto ListDatabase::get_instance() -> ListDatabase* {
-    static std::mutex instance_mutex;
+    //we don't want multiple mutexes on a single ListDatabase
+    static std::mutex instance_mutex; 
     std::lock_guard<std::mutex> db_lock(instance_mutex);
     if (!db_instance) {
         db_instance = new ListDatabase();

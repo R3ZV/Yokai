@@ -44,7 +44,6 @@ TEST_CASE("Testing conflicting transactions") {
         "SET radu 30\n"
         "EXEC\n";
 
-
     // T2 starts
     transaction_2->handle_command("MULTI");
 
@@ -52,7 +51,6 @@ TEST_CASE("Testing conflicting transactions") {
         "MULTI\n"
         "SET radu 40\n"
         "EXEC\n";
-
 
     // T1 updates "radu" to 40 and commits
     transaction_1->handle_command(blob1);

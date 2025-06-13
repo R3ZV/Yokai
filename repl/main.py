@@ -3,6 +3,22 @@ from completor import RedisCompleter, COLOR_EXACT, COLOR_FUZZY
 from prompt_toolkit.styles import Style
 from prompt_toolkit import prompt
 from validator import is_valid_redis_command
+import difflib
+
+VALID_COMMANDS = [
+    "SET", "DEL", "SELECT", "SHOW", "SHOW LOCAL", "SHOW WRITE",
+    "MULTI", "EXEC", "ROLLBACK"
+]
+
+# Suggests the closest command, only if the misspelled command and the correct one match at least 20%
+def suggest_command(cmd: str) -> str | None:
+    parts = cmd.strip().split()
+    if not parts:
+        return None
+
+    user_cmd = parts[0].upper()
+    best = difflib.get_close_matches(user_cmd, VALID_COMMANDS, n=1, cutoff=0.2)
+    return best[0] if best else None
 
 def main() -> int:
     PORT = 8080
@@ -36,7 +52,13 @@ def main() -> int:
             command = prompt("(MULTI)> " if buffering else "> ", completer=RedisCompleter(), style=style)
             is_valid, err_msg = is_valid_redis_command(command)
             if not is_valid:
-                print(f"[SYNTAX ERROR]: {err_msg}")
+                if err_msg == "UNKNOWN":
+                    suggestion = suggest_command(command)
+                    if suggestion:
+                        print(f"Wrong command, did you mean {suggestion}?")
+                else:
+                    print(f"{err_msg}")
+
                 continue
 
             if command == "exit":
@@ -67,15 +89,12 @@ def main() -> int:
                     print(f"[ERROR]: {res}")
                 else:
                     failed_commands = 0
-
                     response = conn.receive_msg()
                     if response is not None:
-                        # response already has \n
                         print(response, end="")
                 command_buffer.clear()
                 buffering = False
 
-        # Handle Ctrl+C or Ctrl+D to exit 
         except (KeyboardInterrupt, EOFError):
             print("May the force be with you!")
             return 0

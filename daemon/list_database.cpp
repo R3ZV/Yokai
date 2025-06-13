@@ -3,9 +3,22 @@
 #include <cassert>
 #include <iostream>
 #include <print>
+#include <mutex>
 
 #include "include/object.h"
 
+ListDatabase* ListDatabase::db_instance = nullptr;
+
+ListDatabase::ListDatabase(){ }
+
+auto ListDatabase::get_instance() -> ListDatabase* {
+    static std::mutex instance_mutex;
+    std::lock_guard<std::mutex> db_lock(instance_mutex);
+    if (!db_instance) {
+        db_instance = new ListDatabase();
+    }
+    return db_instance;
+}
 auto ListDatabase::select_latest(const std::string& key,
                                  int64_t transaction_timestamp)
     -> std::expected<std::shared_ptr<Object>, std::error_code> {

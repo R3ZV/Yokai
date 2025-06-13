@@ -4,7 +4,7 @@
 #include "../../lib/doctest.h"
 
 TEST_CASE("Testing multiple transactions") {
-    ListDatabase* global_database = new ListDatabase();
+    ListDatabase* global_database = ListDatabase::get_instance();
     Transaction* transaction_1 = new Transaction(global_database);
     Transaction* transaction_2 = new Transaction(global_database);
 
@@ -32,7 +32,7 @@ TEST_CASE("Testing multiple transactions") {
               ->asString() == "40");
 }
 TEST_CASE("Testing phantom reads inside of transactions") {
-    ListDatabase* global_database = new ListDatabase();
+    ListDatabase* global_database = ListDatabase::get_instance();
     Transaction* transaction_1 = new Transaction(global_database);
     Transaction* transaction_2 = new Transaction(global_database);
 
@@ -59,7 +59,7 @@ TEST_CASE("Testing phantom reads inside of transactions") {
     transaction_2->handle_command("EXEC");
 }
 TEST_CASE("Testing conflicting transactions") {
-    ListDatabase* global_database = new ListDatabase();
+    ListDatabase* global_database = ListDatabase::get_instance();
     Transaction* transaction_1 = new Transaction(global_database);
     Transaction* transaction_2 = new Transaction(global_database);
 

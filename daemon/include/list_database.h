@@ -15,8 +15,10 @@ class ListDatabase {
    private:
     std::map<std::string, std::deque<std::shared_ptr<Object>>> data;
     std::mutex commit_lock;
-
+    static ListDatabase* db_instance;
+    ListDatabase();
    public:
+    static auto get_instance() -> ListDatabase*;
     auto select_latest(const std::string& key, int64_t transaction_timestamp)
         -> std::expected<std::shared_ptr<Object>, std::error_code>;
     auto show_objects() -> void;

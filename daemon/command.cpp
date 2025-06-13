@@ -20,30 +20,30 @@ auto Command::parse(const std::string& blob) -> std::vector<Command> {
 
         for (auto it = tokens.begin(); it != tokens.end(); it++) {
             if (*it == "SET") {
-                if (it + 2 == tokens.end()) {
+                if (it + 2 >= tokens.end()) {
                     continue;
                 }
                 commands.emplace_back(
                     Command(CommandType::SET, {*(it + 1), *(it + 2)}));
             } else if (*it == "ADDSET" ){
-                if (it + 2 == tokens.end()) {
+                if (it + 2 >= tokens.end()) {
                     continue;
                 }
                 commands.emplace_back(
                     Command(CommandType::ADDSET, {*(it + 1), *(it + 2)}));
             } else if (*it == "DEL") {
-                if (it + 1 == tokens.end()) {
+                if (it + 1 >= tokens.end()) {
                     continue;
                 }
                 commands.emplace_back(Command(CommandType::DEL, {*(it + 1)}));
             } else if (*it == "SELECT") {
-                if (it + 1 == tokens.end()) {
+                if (it + 1 >= tokens.end()) {
                     continue;
                 }
                 commands.emplace_back(
                     Command(CommandType::SELECT, {*(it + 1)}));
             } else if (*it == "SHOW") {
-                if (it + 1 == tokens.end()) {
+                if (it + 1 >= tokens.end()) {
                     commands.emplace_back(Command(CommandType::SHOW, {}));
                 } else {
                     if (*(it + 1) == "LOCAL") {

@@ -63,6 +63,9 @@ shared behaviour for both `REPL` and `DAEMON`.
 ### lib
 **lib** is a directory which includes all library dependencies we need.
 
+# Diagrams
+![class-diagram](./diagrams/diagrama-clase.png)
+
 ## References
 - https://www.postgresql.org/docs/7.1/mvcc.html
 - [AI use](https://github.com/R3ZV/Yokai/wiki/AI-prompt-engineering)

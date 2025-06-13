@@ -1,4 +1,5 @@
 ceva STRING test
+ferrari STRING SLH
+mclaren STRING DELETED
+merc STRING russell
 mihnea STRING "neacsu"
-radu STRING ttv
-rzv STRING DELETED

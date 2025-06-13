@@ -3,8 +3,8 @@ def is_valid_redis_command(command: str) -> tuple[bool, str | None]:
     Validates a command string based on our custom Redis-like grammar.
     Returns (True, None) if valid, else (False, error message)
     """
-    # Dictionary with no of arguments
 
+    # value of the key = number of expected arguments
     COMMANDS = {
         "SET": 2,
         "DEL": 1,

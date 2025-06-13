@@ -2,6 +2,7 @@ from connection import Connection
 from completor import RedisCompleter, COLOR_EXACT, COLOR_FUZZY
 from prompt_toolkit.styles import Style
 from prompt_toolkit import prompt
+from validator import is_valid_redis_command
 
 def main() -> int:
     PORT = 8080
@@ -33,6 +34,10 @@ def main() -> int:
 
         try:
             command = prompt("(MULTI)> " if buffering else "> ", completer=RedisCompleter(), style=style)
+            is_valid, err_msg = is_valid_redis_command(command)
+            if not is_valid:
+                print(f"[SYNTAX ERROR]: {err_msg}")
+                continue
 
             if command == "exit":
                 print("May the force be with you!")

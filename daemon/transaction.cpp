@@ -11,15 +11,12 @@ Transaction::Transaction(ListDatabase* global_store)
       write_buffer(new Database()),
       timestamp(Object::get_current_time()) {}
 
-auto Transaction::handle_command(const std::string& buff) -> void {
-    // TODO:
-    // based on the current implementation the buffer will always
-    // contain a single command so we will keep the
-    // std::vector<Command> for now until further discussions
+auto Transaction::handle_command(const std::string& buff) -> std::string {
     std::vector<Command> commands = Command::parse(buff);
 
     if (this->ongoing) {
-        this->commands.push_back(commands[0]);
+        // for debug
+        for (Command cmd : commands) this->commands.push_back(cmd);
     }
 
     // Update the transaction timestamp if it is a new transaction
@@ -27,11 +24,20 @@ auto Transaction::handle_command(const std::string& buff) -> void {
         this->timestamp = Object::get_current_time();
     }
 
-    if (!commands.empty()) {
+    std::string response;
+    for (Command cmd : commands) {
         // One line command
-        switch (commands[0].get_type()) {
+        switch (cmd.get_type()) {
+            case CommandType::MULTI: {
+                this->ongoing = true;
+            } break;
+
+            case CommandType::EXEC: {
+                this->ongoing = false;
+            } break;
+
             case CommandType::SET: {
-                auto args = commands[0].get_args();
+                auto args = cmd.get_args();
                 std::string key = args[0];
                 auto val = args[1];
                 std::println(std::cerr, "[DBG]: Setting key {} to value {}",
@@ -46,17 +52,18 @@ auto Transaction::handle_command(const std::string& buff) -> void {
 
                 // And also in the local store
                 this->local_store->insert_key(key, new_value);
+                response += "Value successfully inserted!\n";
             } break;
 
             case CommandType::DEL: {
-                auto args = commands[0].get_args();
+                auto args = cmd.get_args();
                 std::string key = args[0];
                 if (this->local_store->exists(key)) {
                     // Delete the key
                     auto res = this->local_store->delete_key(key);
                     if (!res.has_value()) {
                         std::println(std::cerr, "{}", res.error().message());
-                        return;
+                        return res.error().message();
                     }
                 }
                 if (this->write_buffer->exists(key)) {
@@ -64,7 +71,7 @@ auto Transaction::handle_command(const std::string& buff) -> void {
                     auto res = this->write_buffer->delete_key(key);
                     if (!res.has_value()) {
                         std::println(std::cerr, "{}", res.error().message());
-                        return;
+                        return res.error().message();
                     }
                 }
 
@@ -80,13 +87,14 @@ auto Transaction::handle_command(const std::string& buff) -> void {
                                                  this->timestamp));
                     if (!res.has_value()) {
                         std::println(std::cerr, "{}", res.error().message());
-                        return;
+                        return res.error().message();
                     }
+                    response += "Key successfully deleted!\n";
                 }
             } break;
 
             case CommandType::SELECT: {
-                auto args = commands[0].get_args();
+                auto args = cmd.get_args();
                 std::string key = args[0];
 
                 // First look for the key in the local store
@@ -99,12 +107,16 @@ auto Transaction::handle_command(const std::string& buff) -> void {
 
                     if (!res.has_value()) {
                         std::println(std::cerr, "{}", res.error().message());
-                        return;
+                        return res.error().message();
                     }
 
                     // Add the object to the local store
                     const auto& value = res.value();
                     this->local_store->insert_key(key, value);
+
+                    if (!this->ongoing) {
+                        response += "\n";
+                    }
                 }
 
                 // Print the key value pair
@@ -114,6 +126,9 @@ auto Transaction::handle_command(const std::string& buff) -> void {
                     auto printable_value = aux.value();
                     println(std::cerr, "Key: {}, Value: {}", key,
                             printable_value);
+
+                    response += std::format("Key: {}, Value: {}\n", key,
+                                            printable_value);
                 }
             } break;
 
@@ -129,23 +144,12 @@ auto Transaction::handle_command(const std::string& buff) -> void {
                 this->write_buffer->show_objects();
             } break;
 
-            case CommandType::MULTI: {
-                this->ongoing = true;
-            } break;
-
-            case CommandType::EXEC: {
-                this->ongoing = false;
-            } break;
-
             case CommandType::ROLLBACK: {
                 this->rollback = true;
                 this->ongoing = false;
             }
 
             case CommandType::INVALID: {
-                // TODO: find a way to send this error
-                // to the user, maybe handle_command should now
-                // return a message
                 this->ongoing = false;
             } break;
         }
@@ -156,6 +160,8 @@ auto Transaction::handle_command(const std::string& buff) -> void {
         this->commit();
         commands.clear();
     }
+
+    return response;
 }
 
 auto Transaction::commit() -> void {

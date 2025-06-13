@@ -17,6 +17,7 @@ def main() -> int:
 
     running = True
     buffering = False
+    exec = False
     command_buffer = []
 
     style = Style.from_dict({
@@ -25,65 +26,53 @@ def main() -> int:
     })
 
     while running:
+        if failed_commands == ALLOWED_FAILS:
+            print("[ERROR]: Connection to the server is unreliable!")
+            print("Terminating session...")
+            return 1
+
         try:
-
-            if failed_commands == ALLOWED_FAILS:
-                print("[ERROR]: Connection to the server is unreliable!")
-                print("Terminating session...")
-                return 1
-
-            try:
-                command = prompt("(MULTI)> " if buffering else "> ", completer=RedisCompleter(), style=style)
-            except EOFError:
-                return 1
+            command = prompt("(MULTI)> " if buffering else "> ", completer=RedisCompleter(), style=style)
 
             if command == "exit":
-                print("Bye.")
+                print("May the force be with you!")
                 return 0
 
-            if command == "MULTI" and not buffering:
-                buffering = True
-                command_buffer.clear()
-                command_buffer.append(command)
-                print("Entering MULTI mode. Type EXEC to send commands.")
+            if command == "MULTI":
+                if not buffering:
+                    buffering = True
+                    print("Entering MULTI mode. Type EXEC to send commands.")
             elif command == "EXEC":
                 if not buffering:
                     print("EXEC can only be called only in MULTI mode")
                     continue
-
+                exec = True
+            else:
                 command_buffer.append(command)
-                joined = '\n'.join(command_buffer) + '\n'
+                if not buffering:
+                    exec = True
+
+            if exec:
+                exec = False
+                joined = '\n'.join(command_buffer)
 
                 res = conn.send_msg(joined)
                 if res is not None:
                     failed_commands += 1
                     print(f"[ERROR]: {res}")
                 else:
-                    print("All MULTI commands sent!")
                     failed_commands = 0
 
-                buffering = False
+                    response = conn.receive_msg()
+                    if response is not None:
+                        # response already has \n
+                        print(response, end="")
                 command_buffer.clear()
-            else:
-                if not buffering:
-                    res = conn.send_msg(command)
-                    if res is not None:
-                        failed_commands += 1
-                        print(f"[ERROR]: {res}")
-                    else:
-                        print("Command sent!")
-                        failed_commands = 0
-
-                        # TODO: Wait for the returned message
-                        # and print it to the user
-                else:
-                    command_buffer.append(command)
-
-
+                buffering = False
 
         # Handle Ctrl+C or Ctrl+D to exit 
         except (KeyboardInterrupt, EOFError):
-            print("\nBye.")
+            print("May the force be with you!")
             return 0
 
     return 0

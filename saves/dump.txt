@@ -1,1 +1,4 @@
-radu STRING 30
+ceva STRING test
+mihnea STRING "neacsu"
+radu STRING ttv
+rzv STRING DELETED

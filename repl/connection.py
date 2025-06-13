@@ -19,3 +19,9 @@ class Connection:
             return None
         except socket.error as e:
             return e
+    def receive_msg(self, bufsize: int = 4096) -> str | None:
+        try:
+            data = self.sock.recv(bufsize)
+            return data.decode('utf-8')
+        except:
+            return None

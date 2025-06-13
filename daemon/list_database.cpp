@@ -6,6 +6,17 @@
 
 #include "include/object.h"
 
+ListDatabase* ListDatabase::db_instance = nullptr;
+
+ListDatabase::ListDatabase() {}
+
+auto ListDatabase::get_instance() -> ListDatabase* {
+    if (!db_instance) {
+        db_instance = new ListDatabase();
+    }
+    return db_instance;
+}
+
 auto ListDatabase::select_latest(const std::string& key,
                                  int64_t transaction_timestamp)
     -> std::expected<std::shared_ptr<Object>, std::error_code> {

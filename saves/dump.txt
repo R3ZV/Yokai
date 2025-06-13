@@ -1,2 +1,1 @@
-	STRING	30
-	STRING	40
+radu STRING 30

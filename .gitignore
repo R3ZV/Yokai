@@ -3,3 +3,4 @@ zig-out
 docs
 tests/fuzz/corpus
 tests/fuzz/crash-reports
+repl/__pycache__

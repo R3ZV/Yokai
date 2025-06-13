@@ -37,4 +37,4 @@ def is_valid_redis_command(command: str) -> tuple[bool, str | None]:
             return False, f"{cmd} expects {expected_args} argument(s)"
         return True, None
 
-    return False, f"Unknown command: {' '.join(tokens)}"
+    return False, "UNKNOWN"

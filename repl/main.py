@@ -10,7 +10,7 @@ VALID_COMMANDS = [
     "MULTI", "EXEC", "ROLLBACK"
 ]
 
-#Suggests the closest command, only if the misspelled command and the correct one match at least 20%
+# Suggests the closest command, only if the misspelled command and the correct one match at least 20%
 def suggest_command(cmd: str) -> str | None:
     parts = cmd.strip().split()
     if not parts:
@@ -19,6 +19,7 @@ def suggest_command(cmd: str) -> str | None:
     user_cmd = parts[0].upper()
     best = difflib.get_close_matches(user_cmd, VALID_COMMANDS, n=1, cutoff=0.2)
     return best[0] if best else None
+
 
 def main() -> int:
     PORT = 8080
@@ -50,6 +51,17 @@ def main() -> int:
 
         try:
             command = prompt("(MULTI)> " if buffering else "> ", completer=RedisCompleter(), style=style)
+            is_valid, err_msg = is_valid_redis_command(command)
+            if not is_valid:
+                if err_msg == "UNKNOWN":
+                    suggestion = suggest_command(command)
+                    if suggestion:
+                        print(f"Wrong command, did you mean {suggestion}?")
+                else:
+                    print(f"{err_msg}")
+
+                continue
+
 
             if command == "exit":
                 print("May the force be with you!")
@@ -65,15 +77,6 @@ def main() -> int:
                     continue
                 exec = True
             else:
-                is_valid, err_msg = is_valid_redis_command(command)
-                if not is_valid:
-                    suggestion = suggest_command(command)
-                    if suggestion:
-                        print(f"Wrong command, did you mean {suggestion}?")
-                    else:
-                        print(f"[SYNTAX ERROR]: {err_msg}")
-                    continue
-
                 command_buffer.append(command)
                 if not buffering:
                     exec = True

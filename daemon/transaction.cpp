@@ -64,7 +64,8 @@ auto Transaction::handle_command(const std::string& buff) -> std::string {
                 if (hash_set.has_value()) {
                     std::shared_ptr<Object> copy =
                         std::make_shared<Object>(*hash_set.value());
-                    std::println(std::cerr, "[DBG]: Setting key {} to value {} into set",
+                    std::println(std::cerr,
+                                 "[DBG]: Setting key {} to value {} into set",
                                  key, val);
                     this->local_store->insert_into_set(copy, key, val);
                     this->write_buffer->insert_into_set(copy, key, val);

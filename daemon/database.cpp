@@ -28,10 +28,10 @@ auto Database::insert_key(const std::string& key, std::shared_ptr<Object> value)
     return {};
 }
 
-auto Database::insert_into_set(std::shared_ptr<Object> hash_set, const std::string& key, std::string value)
+auto Database::insert_into_set(std::shared_ptr<Object> hash_set,
+                               const std::string& key, std::string value)
     -> std::expected<void, std::error_code> {
     try {
-
         data[key] = hash_set;
         data[key]->insert(value);
 

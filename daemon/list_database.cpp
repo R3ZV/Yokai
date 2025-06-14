@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <mutex>
 #include <print>
 
 #include "include/object.h"
@@ -119,9 +120,13 @@ auto ListDatabase::load_from_file() -> std::expected<void, std::string> {
         ++line_num;
 
         std::istringstream iss(line);
-        std::string key, type, value;
-        iss >> key >> type >> value;
-        if (key.length() == 0 && type.length() == 0 && value.length() == 0) {
+        std::string key, type;
+        iss >> key >> type;
+
+        std::string rest;
+        std::getline(iss, rest);
+
+        if (key.empty() && type.empty() && rest.empty()) {
             return std::unexpected(
                 "[ERR]: Invalid database line format, one of the values is "
                 "empty!");
@@ -131,7 +136,11 @@ auto ListDatabase::load_from_file() -> std::expected<void, std::string> {
             if (type == "STRING") {
                 data.emplace(key, std::deque<std::shared_ptr<Object>>{
                                       std::make_shared<Object>(
-                                          ObjectType::STRING, value)});
+                                          ObjectType::STRING, rest)});
+            } else if (type == "HASH_SET") {
+                data.emplace(key, std::deque<std::shared_ptr<Object>>{
+                                      std::make_shared<Object>(
+                                          ObjectType::HASH_SET, rest)});
             } else {
                 return std::unexpected("[ERR] Unknown type '" + type +
                                        "' on line " + std::to_string(line_num));

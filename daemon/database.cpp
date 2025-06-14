@@ -1,7 +1,10 @@
 #include "include/database.h"
 
+#include <cassert>
+#include <functional>
 #include <iostream>
 #include <map>
+#include <optional>
 #include <print>
 #include <string>
 
@@ -19,6 +22,19 @@ auto Database::insert_key(const std::string& key, std::shared_ptr<Object> value)
     -> std::expected<void, std::error_code> {
     try {
         data[key] = value;
+    } catch (...) {
+        return std::unexpected(std::error_code(errno, std::generic_category()));
+    }
+    return {};
+}
+
+auto Database::insert_into_set(std::shared_ptr<Object> hash_set,
+                               const std::string& key, std::string value)
+    -> std::expected<void, std::error_code> {
+    try {
+        data[key] = hash_set;
+        data[key]->insert(value);
+
     } catch (...) {
         return std::unexpected(std::error_code(errno, std::generic_category()));
     }

@@ -15,8 +15,13 @@ class Database {
     auto insert_key(const std::string& key, std::shared_ptr<Object> value)
         -> std::expected<void, std::error_code>;
 
+    auto insert_into_set(std::shared_ptr<Object> hash_set,
+                         const std::string& key, std::string value)
+        -> std::expected<void, std::error_code>;
+
     auto delete_key(const std::string& key)
         -> std::expected<void, std::error_code>;
+
     auto select(const std::string& key)
         -> std::expected<std::shared_ptr<Object>, std::error_code>;
 

@@ -54,7 +54,24 @@ auto Transaction::handle_command(const std::string& buff) -> std::string {
                 this->local_store->insert_key(key, new_value);
                 response += "Value successfully inserted!\n";
             } break;
+            case CommandType::SADD: {
+                auto args = cmd.get_args();
+                std::string key = args[0];
+                auto val = args[1];
 
+                auto hash_set =
+                    this->global_store->select_latest(key, this->timestamp);
+                if (hash_set.has_value()) {
+                    std::shared_ptr<Object> copy =
+                        std::make_shared<Object>(*hash_set.value());
+                    std::println(std::cerr,
+                                 "[DBG]: Setting key {} to value {} into set",
+                                 key, val);
+                    this->local_store->insert_into_set(copy, key, val);
+                    this->write_buffer->insert_into_set(copy, key, val);
+                }
+
+            } break;
             case CommandType::DEL: {
                 auto args = cmd.get_args();
                 std::string key = args[0];

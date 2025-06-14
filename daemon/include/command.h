@@ -27,6 +27,7 @@ enum CommandType {
     EXEC,
     ROLLBACK,
     INVALID,
+    SADD,
 };
 
 class Command {
@@ -55,6 +56,9 @@ struct formatter<Command> {
         switch (cmd.get_type()) {
             case SET:
                 type_str = "SET";
+                break;
+            case SADD:
+                type_str = "SADD";
                 break;
             case DEL:
                 type_str = "DEL";

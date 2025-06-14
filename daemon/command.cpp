@@ -25,12 +25,12 @@ auto Command::parse(const std::string& blob) -> std::vector<Command> {
                 }
                 commands.emplace_back(
                     Command(CommandType::SET, {*(it + 1), *(it + 2)}));
-            } else if (*it == "ADDSET" ){
+            } else if (*it == "SADD") {
                 if (it + 2 >= tokens.end()) {
                     continue;
                 }
                 commands.emplace_back(
-                    Command(CommandType::ADDSET, {*(it + 1), *(it + 2)}));
+                    Command(CommandType::SADD, {*(it + 1), *(it + 2)}));
             } else if (*it == "DEL") {
                 if (it + 1 >= tokens.end()) {
                     continue;

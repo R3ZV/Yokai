@@ -27,7 +27,7 @@ enum CommandType {
     EXEC,
     ROLLBACK,
     INVALID,
-    ADDSET, 
+    SADD,
 };
 
 class Command {
@@ -57,8 +57,8 @@ struct formatter<Command> {
             case SET:
                 type_str = "SET";
                 break;
-            case ADDSET:
-                type_str = "ADDSET";
+            case SADD:
+                type_str = "SADD";
                 break;
             case DEL:
                 type_str = "DEL";
@@ -78,7 +78,7 @@ struct formatter<Command> {
             case MULTI:
                 type_str = "MULTI";
                 break;
-            case EXEC: 
+            case EXEC:
                 type_str = "EXEC";
                 break;
             case ROLLBACK:

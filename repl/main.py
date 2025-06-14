@@ -6,7 +6,7 @@ from validator import is_valid_redis_command
 import difflib
 
 VALID_COMMANDS = [
-    "SET", "DEL", "SELECT", "SHOW", "SHOW LOCAL", "SHOW WRITE",
+    "SADD", "SET", "DEL", "SELECT", "SHOW", "SHOW LOCAL", "SHOW WRITE",
     "MULTI", "EXEC", "ROLLBACK"
 ]
 
@@ -50,6 +50,10 @@ def main() -> int:
 
         try:
             command = prompt("(MULTI)> " if buffering else "> ", completer=RedisCompleter(), style=style)
+            if command == "exit":
+                print("May the force be with you!")
+                return 0
+
             is_valid, err_msg = is_valid_redis_command(command)
             if not is_valid:
                 if err_msg == "UNKNOWN":
@@ -60,10 +64,6 @@ def main() -> int:
                     print(f"{err_msg}")
 
                 continue
-
-            if command == "exit":
-                print("May the force be with you!")
-                return 0
 
             if command == "MULTI":
                 if not buffering:

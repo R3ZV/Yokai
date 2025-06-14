@@ -14,10 +14,13 @@ class Database {
    public:
     auto insert_key(const std::string& key, std::shared_ptr<Object> value)
         -> std::expected<void, std::error_code>;
-    auto add_key_set(const std::string& key, std::shared_ptr<Object> value) 
-    -> std::expected<void, std::error_code>;
+
+    auto add_key_set(const std::string& key, std::string value)
+        -> std::expected<void, std::error_code>;
+
     auto delete_key(const std::string& key)
         -> std::expected<void, std::error_code>;
+
     auto select(const std::string& key)
         -> std::expected<std::shared_ptr<Object>, std::error_code>;
 

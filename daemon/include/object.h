@@ -4,16 +4,17 @@
 
 #include <chrono>
 #include <optional>
+#include <set>
 #include <string>
 #include <variant>
-#include <set>
 
 enum ObjectType {
-    STRING,  HASH_TABLE, 
+    STRING,
+    HASH_SET,
 };
 
 class Object {
-    std::variant<int, std::string, std::set<std::string> > data;
+    std::variant<int, std::string, std::set<std::string>> data;
     int64_t timestamp;
     ObjectType type;
 
@@ -21,13 +22,13 @@ class Object {
     Object() = default;
     Object(ObjectType type, const std::string& data,
            int64_t timestamp = get_current_time());
-    Object(ObjectType type, int64_t timestamp=get_current_time()); //this will just make the set
     Object(const Object& obj) = default;
     Object& operator=(const Object& obj) = default;
 
     std::optional<std::string> asString() const;
-    auto asSet() const -> std::optional<std::set<std::string> >;
+    auto asSet() const -> std::optional<std::set<std::string>>;
     auto get_timestamp() const -> int64_t;
+    auto get_type() const -> ObjectType;
     auto set_timestamp(int64_t timestamp) -> void;
     auto encode() const -> std::string;
 

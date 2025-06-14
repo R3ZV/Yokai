@@ -54,16 +54,17 @@ auto Transaction::handle_command(const std::string& buff) -> std::string {
                 this->local_store->insert_key(key, new_value);
                 response += "Value successfully inserted!\n";
             } break;
-            case CommandType::ADDSET: {
-                auto args=commands[0].get_args();
-                std::string key=args[0];
-                auto new_val=args[1];
-                std::println(std::cerr, "[DBG]: Adding to set of key {} value {}",
-                    key, new_val);
-                auto second_val=std::make_shared<Object>(ObjectType::STRING, new_val, this->timestamp);
-                this->write_buffer->add_key_set(key, second_val);
-                this->local_store->add_key_set(key, second_val);
-            }
+            case CommandType::SADD: {
+                auto args = cmd.get_args();
+                std::string key = args[0];
+                auto val = args[1];
+
+                std::println(std::cerr,
+                             "[DBG]: Adding to set of key '{}' value '{}'", key,
+                             val);
+                this->write_buffer->add_key_set(key, val);
+                this->local_store->add_key_set(key, val);
+            } break;
             case CommandType::DEL: {
                 auto args = cmd.get_args();
                 std::string key = args[0];

@@ -1,5 +1,1 @@
-ceva STRING test
-ferrari STRING SLH
-mclaren STRING DELETED
-merc STRING russell
-mihnea STRING "neacsu"
+cities HASH_SET paris

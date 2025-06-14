@@ -13,6 +13,7 @@ COLOR_FUZZY = "ansiyellow"
 # Define supported commands with their expected syntax
 COMMANDS = {
     "SET": "SET key val",
+    "SADD": "SADD key val",
     "DEL": "DEL key",
     "SELECT": "SELECT key",
     "SHOW": "SHOW",

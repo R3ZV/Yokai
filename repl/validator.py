@@ -6,6 +6,7 @@ def is_valid_redis_command(command: str) -> tuple[bool, str | None]:
 
     # value of the key = number of expected arguments
     COMMANDS = {
+        "SADD": 2,
         "SET": 2,
         "DEL": 1,
         "SELECT": 1,

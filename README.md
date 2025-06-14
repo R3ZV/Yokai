@@ -26,10 +26,10 @@ Provides commands to build certain aspects of the project:
 # It will build everything, daemon, repl, tests, docs, etc.
 zig build
 
-# Build and run the repl
-zig build run-repl
+# Build and run the daemon
+zig build run-daemon
 
-# Run the daemon
+# Run the repl
 uv run python3 repl/main.py
 
 # Build and run the tests
@@ -64,7 +64,11 @@ shared behaviour for both `REPL` and `DAEMON`.
 **lib** is a directory which includes all library dependencies we need.
 
 # Diagrams
+### Class Diagram
 ![class-diagram](./diagrams/diagrama-clase.png)
+
+### Workflow diagram
+![workflow-diagram](./diagrams/Diagrama%20workflow%20proiect.drawio.png)
 
 ## References
 - https://www.postgresql.org/docs/7.1/mvcc.html

@@ -7,7 +7,7 @@
 #include <string>
 #include <variant>
 
-Object::Object(ObjectType type, const std::string &data, int64_t timestamp)
+Object::Object(ObjectType type, const std::string& data, int64_t timestamp)
     : timestamp(timestamp), type(type) {
     switch (this->type) {
         case STRING:
@@ -22,8 +22,6 @@ Object::Object(ObjectType type, const std::string &data, int64_t timestamp)
                     hash_set.insert(value);
                 }
             }
-            std::println("HOw many times???");
-            std::println("data: {}", data);
             this->data = hash_set;
             break;
     }
@@ -37,15 +35,19 @@ auto Object::asString() const -> std::optional<std::string> {
 }
 
 auto Object::asSet() const -> std::optional<std::set<std::string>> {
-    if (auto ptr = std::get_if<std::set<std::string> >(&data)) {
+    if (auto ptr = std::get_if<std::set<std::string>>(&data)) {
         return *ptr;
     }
     return std::nullopt;
 }
 
-auto Object::get_type() const -> ObjectType {
-    return this->type;
+auto Object::insert(std::string value) -> void {
+    if (auto ptr = std::get_if<std::set<std::string>>(&data)) {
+        ptr->insert(value);
+    }
 }
+
+auto Object::get_type() const -> ObjectType { return this->type; }
 auto Object::get_timestamp() const -> int64_t { return timestamp; }
 
 auto Object::set_timestamp(int64_t timestamp) -> void {

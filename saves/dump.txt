@@ -1,1 +1,1 @@
-cities HASH_SET paris
+cities HASH_SET milano paris

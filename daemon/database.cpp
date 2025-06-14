@@ -1,6 +1,7 @@
 #include "include/database.h"
 
 #include <cassert>
+#include <functional>
 #include <iostream>
 #include <map>
 #include <optional>
@@ -27,15 +28,12 @@ auto Database::insert_key(const std::string& key, std::shared_ptr<Object> value)
     return {};
 }
 
-auto Database::add_key_set(const std::string& key, std::string value)
+auto Database::insert_into_set(std::shared_ptr<Object> hash_set, const std::string& key, std::string value)
     -> std::expected<void, std::error_code> {
     try {
-        if (data.contains(key)) {
-            data[key]->asSet()->insert(value);
-        } else {
-            std::println("Alaways reseting");
-            data[key] = std::make_shared<Object>(ObjectType::HASH_SET, value);
-        }
+
+        data[key] = hash_set;
+        data[key]->insert(value);
 
     } catch (...) {
         return std::unexpected(std::error_code(errno, std::generic_category()));

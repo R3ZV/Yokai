@@ -27,6 +27,7 @@ class Object {
 
     std::optional<std::string> asString() const;
     auto asSet() const -> std::optional<std::set<std::string>>;
+    auto insert(std::string value) -> void;
     auto get_timestamp() const -> int64_t;
     auto get_type() const -> ObjectType;
     auto set_timestamp(int64_t timestamp) -> void;

@@ -1,6 +1,12 @@
 # Yokai
 
-Yokai is a redis clone aimed for learning purposes.
+Yokai is an in-memory database inspired by Redis. It supports strings, numbers (as strings), and hash sets. It comes with a server written in C++23 and a REPL built with Python.
+
+To enable persistence, we save the state of the database at regular intervals. When the server starts, we load this data.
+
+Since we spawn a thread for each client, we need to synchronize the global database with the changes made by clients. To achieve this, we use MVCC (Multi-Version Concurrency Control).
+
+A demo of the database can be found [here](https://youtu.be/OwsNCGwe2Ys)
 
 # Contributing
 
